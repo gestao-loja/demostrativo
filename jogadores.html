@@ -3,370 +3,671 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cadastro de Jogadores</title>
+<title>EA FC - Jogadores</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    background: #f4f6f8;
-    color: #222;
-    padding: 24px;
-  }
-  h1 { margin-bottom: 20px; color: #1a3d7c; }
-  .container { max-width: 1200px; margin: 0 auto; }
+  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
 
-  form {
-    background: #fff;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Rajdhani', sans-serif;
+    background: #1a1f2b;
+    background-image: linear-gradient(135deg, #1a1f2b 0%, #2a3345 100%);
+    color: #fff;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 14px;
-    margin-bottom: 24px;
+    min-height: 100vh;
   }
-  form h2 {
-    grid-column: 1 / -1;
-    font-size: 1.1rem;
-    color: #1a3d7c;
-    border-bottom: 2px solid #eef1f5;
-    padding-bottom: 8px;
+
+  .container { max-width: 900px; margin: 0 auto; }
+
+  /* Topo da Página */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+
+  h1 {
+    color: #00e5ff;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+    font-size: 1.8rem;
+  }
+
+  .btn-new {
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
+  }
+  .btn-new:hover { background: #b71c1c; }
+  .btn-new:active { transform: scale(0.98); }
+
+  /* Lista de Jogadores */
+  .cards-list { display: flex; flex-direction: column; gap: 20px; }
+
+  .player-card {
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    color: #333;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    position: relative;
+  }
+
+  /* Header do Card (Faixa Vermelha) */
+  .card-header {
+    background: linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%);
+    color: #fff;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
+    position: relative;
+  }
+  .card-header::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    background: #fff;
+    clip-path: polygon(100% 0, 100% 100%, 0 100%);
+  }
+
+  .player-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* Número da camisa no header */
+  .shirt-number {
+    background: #fff;
+    color: #d32f2f;
+    font-size: 1rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+
+  .flag-icon {
+    font-size: 0.8rem;
+    background: #ffd700;
+    color: #333;
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-weight: 700;
+    z-index: 1;
+    margin-right: 20px;
+  }
+
+  /* Corpo do Card */
+  .card-body {
+    display: flex;
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .info-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.9rem;
+    padding-right: 15px;
+    border-right: 1px solid #eee;
+  }
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    color: #555;
+  }
+  .info-row strong { color: #111; font-weight: 700; }
+
+  .stats-col {
+    flex: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .stat-box {
+    background: #3a4358;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .stat-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #a0a8b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .stat-values {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+
+  /* Atributos */
+  .attributes-section { padding: 0 15px 15px 15px; }
+  .attr-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #333;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+  }
+  .attr-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 30px;
+  }
+  .attr-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #333;
+  }
+  .attr-values { display: flex; gap: 2px; }
+  .attr-badge {
+    padding: 2px 6px;
+    border-radius: 2px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #fff;
+    min-width: 28px;
+    text-align: center;
+  }
+  .badge-orange { background: #f57c00; }
+  .badge-red { background: #d32f2f; }
+  .badge-green { background: #2e7d32; }
+  .badge-yellow { background: #fbc02d; color: #333; }
+
+  /* Rodapé do Card */
+  .card-footer {
+    background: #f5f5f5;
+    padding: 8px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    border-top: 1px solid #ddd;
+  }
+  .position-badge {
+    background: #333;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+  }
+  .status-badge {
+    background: #ddd;
+    color: #333;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .status-titular { background: #c8e6c9; color: #1b5e20; }
+  .status-reserva { background: #bbdefb; color: #0d47a1; }
+  .status-emprestado { background: #fff9c4; color: #f57f17; }
+  .status-vendido { background: #e0e0e0; color: #424242; }
+  .status-lesionado { background: #ffcdd2; color: #b71c1c; }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    overflow-y: auto;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s, visibility 0.25s;
+    z-index: 100;
+  }
+  .modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal-content {
+    background: #fff;
+    border-radius: 6px;
+    width: 100%;
+    max-width: 750px;
+    color: #333;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    border-top: 4px solid #d32f2f;
+    transform: translateY(-20px);
+    transition: transform 0.25s;
+  }
+  .modal-overlay.active .modal-content {
+    transform: translateY(0);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 2px solid #eee;
+  }
+  .modal-header h2 {
+    color: #d32f2f;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    color: #999;
+    cursor: pointer;
+    line-height: 1;
+    font-weight: 700;
+    transition: color 0.2s;
+  }
+  .btn-close:hover { color: #d32f2f; }
+
+  .modal-body { padding: 20px; }
+
+  /* Formulário dentro do Modal */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 15px;
   }
   .field { display: flex; flex-direction: column; }
-  .field label { font-size: .8rem; font-weight: 600; margin-bottom: 4px; color: #555; }
+  .field label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
   .field input, .field select {
-    padding: 8px 10px;
-    border: 1px solid #cfd6df;
-    border-radius: 6px;
-    font-size: .9rem;
-    transition: border-color .2s;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    background: #f8f8f8;
+    color: #222;
   }
   .field input:focus, .field select:focus {
     outline: none;
-    border-color: #1a3d7c;
-  }
-  .actions {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-    margin-top: 8px;
-  }
-  button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 6px;
-    font-size: .9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity .2s;
-  }
-  button:hover { opacity: .85; }
-  .btn-primary { background: #1a3d7c; color: #fff; }
-  .btn-secondary { background: #e2e8f0; color: #333; }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
+    border-color: #d32f2f;
     background: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    font-size: .85rem;
   }
-  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eef1f5; }
-  th { background: #1a3d7c; color: #fff; font-weight: 600; white-space: nowrap; }
-  tr:hover td { background: #f9fbfd; }
-  .badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: .75rem;
-    font-weight: 600;
-  }
-  .badge-Titular    { background: #d1fae5; color: #065f46; }
-  .badge-Reserva    { background: #e0e7ff; color: #3730a3; }
-  .badge-Emprestado { background: #fef3c7; color: #92400e; }
-  .badge-Vendido    { background: #f3f4f6; color: #374151; }
-  .badge-Lesionado  { background: #fee2e2; color: #991b1b; }
 
-  .table-actions button {
-    padding: 5px 10px;
-    font-size: .78rem;
-    margin-right: 4px;
+  .section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #d32f2f;
+    text-transform: uppercase;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+    margin: 15px 0 10px 0;
+    letter-spacing: 0.5px;
   }
-  .btn-edit { background: #fbbf24; color: #78350f; }
-  .btn-del  { background: #ef4444; color: #fff; }
+
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background: #d32f2f;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+  }
+  .btn-submit:hover { background: #b71c1c; }
 
   .empty-msg {
     text-align: center;
-    padding: 30px;
     color: #888;
+    padding: 40px;
     background: #fff;
-    border-radius: 10px;
+    border-radius: 6px;
   }
-  .table-wrap { overflow-x: auto; }
 </style>
 </head>
 <body>
+
 <div class="container">
-  <h1>⚽ Cadastro de Jogadores</h1>
-
-  <form id="playerForm">
-    <h2 id="formTitle">Novo Jogador</h2>
-
-    <input type="hidden" id="editId">
-
-    <div class="field">
-      <label>Nome *</label>
-      <input type="text" id="nome" required maxlength="100">
-    </div>
-    <div class="field">
-      <label>Idade *</label>
-      <input type="number" id="idade" min="15" max="50" required>
-    </div>
-    <div class="field">
-      <label>Posição Principal *</label>
-      <input type="text" id="posicao_principal" required maxlength="30">
-    </div>
-    <div class="field">
-      <label>Posição Jogável</label>
-      <input type="text" id="posicao_jogavel" maxlength="100">
-    </div>
-    <div class="field">
-      <label>Nacionalidade *</label>
-      <input type="text" id="nacionalidade" required maxlength="60">
-    </div>
-    <div class="field">
-      <label>Melhor Pé *</label>
-      <select id="melhor_pe" required>
-        <option value="Direito">Direito</option>
-        <option value="Esquerdo">Esquerdo</option>
-        <option value="Ambos">Ambos</option>
-      </select>
-    </div>
-    <div class="field">
-      <label>Altura (cm) *</label>
-      <input type="number" id="altura_cm" min="120" max="250" required>
-    </div>
-    <div class="field">
-      <label>Peso (kg) *</label>
-      <input type="number" id="peso_kg" step="0.1" min="30" max="150" required>
-    </div>
-    <div class="field">
-      <label>Número da Camisa</label>
-      <input type="number" id="numero_camisa" min="1" max="99">
-    </div>
-    <div class="field">
-      <label>Overall *</label>
-      <input type="number" id="overall" min="1" max="99" required>
-    </div>
-    <div class="field">
-      <label>Potencial Mínimo *</label>
-      <input type="number" id="potencial_minimo" min="1" max="99" required>
-    </div>
-    <div class="field">
-      <label>Potencial Máximo *</label>
-      <input type="number" id="potencial_maximo" min="1" max="99" required>
-    </div>
-    <div class="field">
-      <label>Status *</label>
-      <select id="status" required>
-        <option value="Titular">Titular</option>
-        <option value="Reserva">Reserva</option>
-        <option value="Emprestado">Emprestado</option>
-        <option value="Vendido">Vendido</option>
-        <option value="Lesionado">Lesionado</option>
-      </select>
-    </div>
-
-    <div class="actions">
-      <button type="button" class="btn-secondary" id="cancelBtn" style="display:none">Cancelar</button>
-      <button type="submit" class="btn-primary" id="submitBtn">Cadastrar</button>
-    </div>
-  </form>
-
-  <div class="table-wrap">
-    <table id="playersTable">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th>Nome</th>
-          <th>Idade</th>
-          <th>Pos. Principal</th>
-          <th>Pos. Jogável</th>
-          <th>Nacionalidade</th>
-          <th>Pé</th>
-          <th>Altura</th>
-          <th>Peso</th>
-          <th>Camisa</th>
-          <th>Overall</th>
-          <th>Potencial</th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="playersBody"></tbody>
-    </table>
+  <div class="top-bar">
+    <h1>Informações do Jogador</h1>
+    <button class="btn-new" id="openModalBtn">+ Novo Jogador</button>
   </div>
-  <p class="empty-msg" id="emptyMsg">Nenhum jogador cadastrado ainda.</p>
+
+  <!-- LISTA DE JOGADORES -->
+  <div class="cards-list" id="cardsList"></div>
+</div>
+
+<!-- ===== MODAL DE CADASTRO ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Cadastrar Novo Jogador</h2>
+      <button class="btn-close" id="closeModalBtn">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <form id="playerForm">
+        <div class="section-title">Dados Básicos</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Nome</label>
+            <input type="text" id="nome" required placeholder="Ex: Ricardo Sanchez">
+          </div>
+          <div class="field">
+            <label>Nacionalidade</label>
+            <input type="text" id="nacionalidade" required placeholder="Ex: Venezuela">
+          </div>
+          <div class="field">
+            <label>Idade</label>
+            <input type="number" id="idade" required min="15" max="50" placeholder="16">
+          </div>
+          <div class="field">
+            <label>Altura (cm)</label>
+            <input type="number" id="altura" required min="120" max="250" placeholder="181">
+          </div>
+          <div class="field">
+            <label>Peso (kg)</label>
+            <input type="number" id="peso" required step="0.1" min="30" max="150" placeholder="80.0">
+          </div>
+          <div class="field">
+            <label>Pé</label>
+            <select id="pe" required>
+              <option value="Esq.">Esquerdo</option>
+              <option value="Dir.">Direito</option>
+              <option value="Ambos">Ambos</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Número da Camisa</label>
+            <input type="number" id="camisa" required min="1" max="99" placeholder="10">
+          </div>
+        </div>
+
+        <div class="section-title">Notas e Posição</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Geral</label>
+            <input type="number" id="geral" required min="1" max="99" placeholder="65">
+          </div>
+          <div class="field">
+            <label>Potencial</label>
+            <input type="number" id="potencial" required min="1" max="99" placeholder="86">
+          </div>
+          <div class="field">
+            <label>Tipo (Armador...)</label>
+            <input type="text" id="tipo" required placeholder="Armador">
+          </div>
+          <div class="field">
+            <label>Posição</label>
+            <input type="text" id="posicao" required placeholder="Meia Atacante">
+          </div>
+          <div class="field">
+            <label>Status</label>
+            <select id="status" required>
+              <option value="Titular">Titular</option>
+              <option value="Reserva">Reserva</option>
+              <option value="Emprestado">Emprestado</option>
+              <option value="Vendido">Vendido</option>
+              <option value="Lesionado">Lesionado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-title">Pontos Fortes (Atributos)</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Reação</label>
+            <input type="number" id="reacao" required min="1" max="99" placeholder="69">
+          </div>
+          <div class="field">
+            <label>Visão de Jogo</label>
+            <input type="number" id="visao" required min="1" max="99" placeholder="64">
+          </div>
+          <div class="field">
+            <label>Pos. de Ataque</label>
+            <input type="number" id="ataque" required min="1" max="99" placeholder="60">
+          </div>
+          <div class="field">
+            <label>Controle de Bola</label>
+            <input type="number" id="controle" required min="1" max="99" placeholder="50">
+          </div>
+          <div class="field">
+            <label>Combatividade</label>
+            <input type="number" id="combate" required min="1" max="99" placeholder="52">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">Cadastrar Jogador</button>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
-const STORAGE_KEY = 'jogadores_crud';
-
+const STORAGE_KEY = 'ea_fc_players';
 let players = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 
-const $ = id => document.getElementById(id);
-const form = $('playerForm');
-const tbody = $('playersBody');
-const emptyMsg = $('emptyMsg');
-const formTitle = $('formTitle');
-const submitBtn = $('submitBtn');
-const cancelBtn = $('cancelBtn');
-const editIdInput = $('editId');
+const form = document.getElementById('playerForm');
+const cardsList = document.getElementById('cardsList');
+const modalOverlay = document.getElementById('modalOverlay');
+const openModalBtn = document.getElementById('openModalBtn');
+const closeModalBtn = document.getElementById('closeModalBtn');
 
-function save() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+// Funções do Modal
+function openModal() {
+  modalOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
 }
-
-function nextId() {
-  return players.length ? Math.max(...players.map(p => p.id)) + 1 : 1;
-}
-
-function render() {
-  tbody.innerHTML = '';
-  if (!players.length) {
-    emptyMsg.style.display = 'block';
-    return;
-  }
-  emptyMsg.style.display = 'none';
-
-  players.forEach(p => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${p.id}</td>
-      <td><strong>${escapeHtml(p.nome)}</strong></td>
-      <td>${p.idade}</td>
-      <td>${escapeHtml(p.posicao_principal)}</td>
-      <td>${escapeHtml(p.posicao_jogavel || '—')}</td>
-      <td>${escapeHtml(p.nacionalidade)}</td>
-      <td>${p.melhor_pe}</td>
-      <td>${p.altura_cm} cm</td>
-      <td>${p.peso_kg} kg</td>
-      <td>${p.numero_camisa ?? '—'}</td>
-      <td><strong>${p.overall}</strong></td>
-      <td>${p.potencial_minimo}–${p.potencial_maximo}</td>
-      <td><span class="badge badge-${p.status}">${p.status}</span></td>
-      <td class="table-actions">
-        <button class="btn-edit" data-id="${p.id}">Editar</button>
-        <button class="btn-del" data-id="${p.id}">Excluir</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
-
-  tbody.querySelectorAll('.btn-edit').forEach(b =>
-    b.addEventListener('click', () => editPlayer(+b.dataset.id)));
-  tbody.querySelectorAll('.btn-del').forEach(b =>
-    b.addEventListener('click', () => deletePlayer(+b.dataset.id)));
-}
-
-function escapeHtml(s) {
-  return String(s ?? '').replace(/[&<>"']/g, c => ({
-    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-  }[c]));
-}
-
-function getFormData() {
-  return {
-    nome: $('nome').value.trim(),
-    idade: +$('idade').value,
-    posicao_principal: $('posicao_principal').value.trim(),
-    posicao_jogavel: $('posicao_jogavel').value.trim(),
-    nacionalidade: $('nacionalidade').value.trim(),
-    melhor_pe: $('melhor_pe').value,
-    altura_cm: +$('altura_cm').value,
-    peso_kg: +$('peso_kg').value,
-    numero_camisa: $('numero_camisa').value ? +$('numero_camisa').value : null,
-    overall: +$('overall').value,
-    potencial_minimo: +$('potencial_minimo').value,
-    potencial_maximo: +$('potencial_maximo').value,
-    status: $('status').value
-  };
-}
-
-function fillForm(p) {
-  $('nome').value = p.nome;
-  $('idade').value = p.idade;
-  $('posicao_principal').value = p.posicao_principal;
-  $('posicao_jogavel').value = p.posicao_jogavel || '';
-  $('nacionalidade').value = p.nacionalidade;
-  $('melhor_pe').value = p.melhor_pe;
-  $('altura_cm').value = p.altura_cm;
-  $('peso_kg').value = p.peso_kg;
-  $('numero_camisa').value = p.numero_camisa ?? '';
-  $('overall').value = p.overall;
-  $('potencial_minimo').value = p.potencial_minimo;
-  $('potencial_maximo').value = p.potencial_maximo;
-  $('status').value = p.status;
-}
-
-function resetForm() {
+function closeModal() {
+  modalOverlay.classList.remove('active');
+  document.body.style.overflow = '';
   form.reset();
-  editIdInput.value = '';
-  formTitle.textContent = 'Novo Jogador';
-  submitBtn.textContent = 'Cadastrar';
-  cancelBtn.style.display = 'none';
 }
 
-form.addEventListener('submit', e => {
-  e.preventDefault();
-  const data = getFormData();
+openModalBtn.addEventListener('click', openModal);
+closeModalBtn.addEventListener('click', closeModal);
 
-  if (data.potencial_maximo < data.potencial_minimo) {
-    alert('O potencial máximo deve ser maior ou igual ao mínimo.');
-    return;
-  }
-
-  const editingId = editIdInput.value ? +editIdInput.value : null;
-
-  if (editingId) {
-    const idx = players.findIndex(p => p.id === editingId);
-    if (idx !== -1) players[idx] = { ...players[idx], ...data };
-  } else {
-    players.push({ id: nextId(), ...data });
-  }
-
-  save();
-  render();
-  resetForm();
+modalOverlay.addEventListener('click', (e) => {
+  if (e.target === modalOverlay) closeModal();
 });
 
-cancelBtn.addEventListener('click', resetForm);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
+});
 
-function editPlayer(id) {
-  const p = players.find(x => x.id === id);
-  if (!p) return;
-  fillForm(p);
-  editIdInput.value = id;
-  formTitle.textContent = `Editar Jogador #${id}`;
-  submitBtn.textContent = 'Salvar alterações';
-  cancelBtn.style.display = 'inline-block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+// Gera o HTML do card
+function renderCard(p) {
+  const getBadgeColor = (val) => {
+    if (val >= 80) return 'badge-green';
+    if (val >= 70) return 'badge-yellow';
+    if (val >= 60) return 'badge-orange';
+    return 'badge-red';
+  };
+
+  return `
+    <div class="player-card">
+      <div class="card-header">
+        <h2 class="player-name">
+          <span class="shirt-number">${p.camisa}</span>
+          ${p.nome}
+        </h2>
+        <span class="flag-icon">${p.nacionalidade.substring(0,3).toUpperCase()}</span>
+      </div>
+      
+      <div class="card-body">
+        <div class="info-col">
+          <div class="info-row"><span>Idade:</span> <strong>${p.idade}</strong></div>
+          <div class="info-row"><span>Altura:</span> <strong>${p.altura} cm</strong></div>
+          <div class="info-row"><span>Peso:</span> <strong>${p.peso} kg</strong></div>
+          <div class="info-row"><span>Pé:</span> <strong>${p.pe}</strong></div>
+        </div>
+        
+        <div class="stats-col">
+          <div class="stat-box">
+            <span class="stat-label">Geral</span>
+            <span class="stat-values">${p.geral}</span>
+          </div>
+          <div class="stat-box" style="background:#2a3345;">
+            <span class="stat-label">Potencial</span>
+            <span class="stat-values">${p.potencial}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="attributes-section">
+        <div class="attr-title">Pontos fortes: <span style="float:right; color:#666; font-weight:normal;">Tipo: ${p.tipo}</span></div>
+        <div class="attr-grid">
+          <div class="attr-row">
+            <span>Reação</span>
+            <div class="attr-values">
+              <span class="attr-badge ${getBadgeColor(p.reacao)}">${p.reacao}</span>
+              <span class="attr-badge badge-green">${Math.min(+p.reacao + 24, 99)}</span>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span>Visão de Jogo</span>
+            <div class="attr-values">
+              <span class="attr-badge ${getBadgeColor(p.visao)}">${p.visao}</span>
+              <span class="attr-badge badge-green">${Math.min(+p.visao + 30, 99)}</span>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span>Pos. de Ataque</span>
+            <div class="attr-values">
+              <span class="attr-badge ${getBadgeColor(p.ataque)}">${p.ataque}</span>
+              <span class="attr-badge badge-green">${Math.min(+p.ataque + 30, 99)}</span>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span>Controle de Bola</span>
+            <div class="attr-values">
+              <span class="attr-badge ${getBadgeColor(p.controle)}">${p.controle}</span>
+              <span class="attr-badge badge-green">${Math.min(+p.controle + 42, 99)}</span>
+            </div>
+          </div>
+          <div class="attr-row">
+            <span>Combatividade</span>
+            <div class="attr-values">
+              <span class="attr-badge ${getBadgeColor(p.combate)}">${p.combate}</span>
+              <span class="attr-badge badge-yellow">${Math.min(+p.combate + 26, 99)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-footer">
+        <span class="position-badge">${p.posicao}</span>
+        <div>
+          <span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span>
+          <button onclick="deletePlayer(${p.id})" style="margin-left:10px; background:#ef4444; color:white; border:none; padding:4px 10px; border-radius:3px; cursor:pointer; font-weight:bold;">X</button>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
-function deletePlayer(id) {
-  const p = players.find(x => x.id === id);
-  if (!p) return;
-  if (!confirm(`Excluir o jogador "${p.nome}"?`)) return;
-  players = players.filter(x => x.id !== id);
-  save();
-  render();
-  if (editIdInput.value && +editIdInput.value === id) resetForm();
+function renderList() {
+  if (players.length === 0) {
+    cardsList.innerHTML = '<p class="empty-msg">Nenhum jogador cadastrado ainda.<br>Clique em <strong>+ Novo Jogador</strong> para começar.</p>';
+    return;
+  }
+  cardsList.innerHTML = players.map(renderCard).join('');
 }
 
-render();
+// Cadastrar
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const newPlayer = {
+    id: Date.now(),
+    nome: document.getElementById('nome').value,
+    nacionalidade: document.getElementById('nacionalidade').value,
+    idade: document.getElementById('idade').value,
+    altura: document.getElementById('altura').value,
+    peso: document.getElementById('peso').value,
+    pe: document.getElementById('pe').value,
+    camisa: document.getElementById('camisa').value,
+    geral: document.getElementById('geral').value,
+    potencial: document.getElementById('potencial').value,
+    tipo: document.getElementById('tipo').value,
+    posicao: document.getElementById('posicao').value,
+    status: document.getElementById('status').value,
+    reacao: document.getElementById('reacao').value,
+    visao: document.getElementById('visao').value,
+    ataque: document.getElementById('ataque').value,
+    controle: document.getElementById('controle').value,
+    combate: document.getElementById('combate').value,
+  };
+
+  players.push(newPlayer);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+  
+  renderList();
+  closeModal();
+});
+
+// Deletar
+window.deletePlayer = (id) => {
+  if (!confirm('Deseja remover este jogador?')) return;
+  players = players.filter(p => p.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
+  renderList();
+};
+
+// Inicialização
+renderList();
 </script>
 </body>
 </html>
