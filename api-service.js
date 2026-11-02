@@ -1,10 +1,12 @@
 /* =========================================================
    CONFIGURAÇÃO DO SUPABASE (DIRETO NO FRONTEND)
    ========================================================= */
-const SUPABASE_URL  = 'https://tzolokxetilunyfzovav.supabase.co';   // Ex: 'https://xyzcompany.supabase.co'
-const SUPABASE_KEY  = 'sb_publishable_0HJWnbqDMg1LFwLuhaRLDg_FvEXwxZd';
+const { SUPABASE_URL, SUPABASE_KEY } = window.ENV;
 
-// Inicializa o cliente do Supabase
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  alert("Erro: As configurações do Supabase não foram encontradas no config.js");
+}
+
 const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* =========================================================
