@@ -3,671 +3,544 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EA FC - Jogadores</title>
+<title>Gerenciador de Futebol</title>
 <style>
+  /* ... (Todo o CSS que já fizemos: fonte, cards do EA FC, modais, etc. Permanece IGUAL) ... */
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  
-  body {
-    font-family: 'Rajdhani', sans-serif;
-    background: #1a1f2b;
-    background-image: linear-gradient(135deg, #1a1f2b 0%, #2a3345 100%);
-    color: #fff;
-    padding: 20px;
-    min-height: 100vh;
-  }
-
-  .container { max-width: 900px; margin: 0 auto; }
-
-  /* Topo da Página */
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 25px;
-  }
-
-  h1 {
-    color: #00e5ff;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
-    font-size: 1.8rem;
-  }
-
-  .btn-new {
-    background: #d32f2f;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
-  }
-  .btn-new:hover { background: #b71c1c; }
-  .btn-new:active { transform: scale(0.98); }
-
-  /* Lista de Jogadores */
-  .cards-list { display: flex; flex-direction: column; gap: 20px; }
-
-  .player-card {
-    background: #fff;
-    border-radius: 6px;
-    overflow: hidden;
-    color: #333;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    position: relative;
-  }
-
-  /* Header do Card (Faixa Vermelha) */
-  .card-header {
-    background: linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%);
-    color: #fff;
-    padding: 10px 15px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%);
-    position: relative;
-  }
-  .card-header::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 30px;
-    background: #fff;
-    clip-path: polygon(100% 0, 100% 100%, 0 100%);
-  }
-
-  .player-name {
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 0;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  /* Número da camisa no header */
-  .shirt-number {
-    background: #fff;
-    color: #d32f2f;
-    font-size: 1rem;
-    font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  }
-
-  .flag-icon {
-    font-size: 0.8rem;
-    background: #ffd700;
-    color: #333;
-    padding: 2px 6px;
-    border-radius: 2px;
-    font-weight: 700;
-    z-index: 1;
-    margin-right: 20px;
-  }
-
-  /* Corpo do Card */
-  .card-body {
-    display: flex;
-    padding: 15px;
-    gap: 15px;
-  }
-
-  .info-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 0.9rem;
-    padding-right: 15px;
-    border-right: 1px solid #eee;
-  }
-  .info-row {
-    display: flex;
-    justify-content: space-between;
-    color: #555;
-  }
-  .info-row strong { color: #111; font-weight: 700; }
-
-  .stats-col {
-    flex: 1.5;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .stat-box {
-    background: #3a4358;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .stat-label {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: #a0a8b8;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .stat-values {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-  }
-
-  /* Atributos */
-  .attributes-section { padding: 0 15px 15px 15px; }
-  .attr-title {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #333;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 5px;
-    margin-bottom: 10px;
-  }
-  .attr-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 30px;
-  }
-  .attr-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #333;
-  }
-  .attr-values { display: flex; gap: 2px; }
-  .attr-badge {
-    padding: 2px 6px;
-    border-radius: 2px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: #fff;
-    min-width: 28px;
-    text-align: center;
-  }
-  .badge-orange { background: #f57c00; }
-  .badge-red { background: #d32f2f; }
-  .badge-green { background: #2e7d32; }
-  .badge-yellow { background: #fbc02d; color: #333; }
-
-  /* Rodapé do Card */
-  .card-footer {
-    background: #f5f5f5;
-    padding: 8px 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.85rem;
-    border-top: 1px solid #ddd;
-  }
-  .position-badge {
-    background: #333;
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 2px;
-    font-weight: 700;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-  }
-  .status-badge {
-    background: #ddd;
-    color: #333;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  .status-titular { background: #c8e6c9; color: #1b5e20; }
-  .status-reserva { background: #bbdefb; color: #0d47a1; }
-  .status-emprestado { background: #fff9c4; color: #f57f17; }
-  .status-vendido { background: #e0e0e0; color: #424242; }
-  .status-lesionado { background: #ffcdd2; color: #b71c1c; }
-
-  /* ===== MODAL ===== */
-  .modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.75);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 40px 20px;
-    overflow-y: auto;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.25s, visibility 0.25s;
-    z-index: 100;
-  }
-  .modal-overlay.active {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .modal-content {
-    background: #fff;
-    border-radius: 6px;
-    width: 100%;
-    max-width: 750px;
-    color: #333;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-    border-top: 4px solid #d32f2f;
-    transform: translateY(-20px);
-    transition: transform 0.25s;
-  }
-  .modal-overlay.active .modal-content {
-    transform: translateY(0);
-  }
-
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 2px solid #eee;
-  }
-  .modal-header h2 {
-    color: #d32f2f;
-    font-size: 1.3rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .btn-close {
-    background: transparent;
-    border: none;
-    font-size: 1.8rem;
-    color: #999;
-    cursor: pointer;
-    line-height: 1;
-    font-weight: 700;
-    transition: color 0.2s;
-  }
-  .btn-close:hover { color: #d32f2f; }
-
+  body { font-family: 'Rajdhani', sans-serif; background: #1a1f2b; background-image: linear-gradient(135deg, #1a1f2b 0%, #2a3345 100%); color: #fff; padding: 20px; min-height: 100vh; }
+  .container { max-width: 1000px; margin: 0 auto; }
+  .nav-bar { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid #3a4358; padding-bottom: 10px; }
+  .nav-btn { background: transparent; color: #a0a8b8; border: none; padding: 8px 16px; font-family: inherit; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; cursor: pointer; border-bottom: 3px solid transparent; }
+  .nav-btn:hover { color: #fff; }
+  .nav-btn.active { color: #00e5ff; border-bottom: 3px solid #00e5ff; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+  h1, h2 { color: #00e5ff; text-transform: uppercase; letter-spacing: 1px; }
+  h1 { font-size: 1.8rem; text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); }
+  h2 { font-size: 1.4rem; margin-bottom: 15px; }
+  .subtitle { color: #a0a8b8; font-size: 1rem; margin-bottom: 20px; }
+  .btn-primary { background: #d32f2f; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; font-family: inherit; font-size: 1rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: background 0.2s; }
+  .btn-primary:hover { background: #b71c1c; }
+  .btn-back { background: #3a4358; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; font-family: inherit; font-weight: 700; cursor: pointer; margin-bottom: 15px; }
+  .teams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+  .team-card { background: #fff; border-radius: 6px; padding: 20px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; color: #333; border-top: 5px solid #d32f2f; }
+  .team-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+  .team-shield { width: 60px; height: 60px; background: #d32f2f; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; margin: 0 auto 15px auto; }
+  .team-card h3 { font-size: 1.2rem; color: #1a1f2b; text-transform: uppercase; }
+  .team-card p { font-size: 0.85rem; color: #666; margin-top: 5px; }
+  .filter-bar { background: #2a3345; padding: 15px; border-radius: 6px; display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: flex-end; }
+  .filter-bar .field { flex: 1; min-width: 130px; }
+  .filter-bar label { color: #a0a8b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: block; }
+  .filter-bar input, .filter-bar select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #3a4358; background: #1a1f2b; color: #fff; font-family: inherit; font-size: 0.9rem; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 6px; overflow: hidden; color: #333; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #eee; }
+  th { background: #1a1f2b; color: #00e5ff; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+  tr:hover td { background: #f9fbfd; }
+  .rank-badge { background: #d32f2f; color: #fff; font-weight: 800; padding: 2px 8px; border-radius: 4px; }
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; overflow-y: auto; opacity: 0; visibility: hidden; transition: opacity 0.25s, visibility 0.25s; z-index: 100; }
+  .modal-overlay.active { opacity: 1; visibility: visible; }
+  .modal-content { background: #fff; border-radius: 6px; width: 100%; max-width: 750px; color: #333; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border-top: 4px solid #d32f2f; transform: translateY(-20px); transition: transform 0.25s; }
+  .modal-overlay.active .modal-content { transform: translateY(0); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 2px solid #eee; }
+  .modal-header h2 { color: #d32f2f; font-size: 1.3rem; }
+  .btn-close { background: transparent; border: none; font-size: 1.8rem; color: #999; cursor: pointer; }
   .modal-body { padding: 20px; }
-
-  /* Formulário dentro do Modal */
-  .form-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
-    margin-bottom: 15px;
-  }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
   .field { display: flex; flex-direction: column; }
-  .field label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #666;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-  .field input, .field select {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-    font-family: inherit;
-    font-size: 0.95rem;
-    background: #f8f8f8;
-    color: #222;
-  }
-  .field input:focus, .field select:focus {
-    outline: none;
-    border-color: #d32f2f;
-    background: #fff;
-  }
-
-  .section-title {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #d32f2f;
-    text-transform: uppercase;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 5px;
-    margin: 15px 0 10px 0;
-    letter-spacing: 0.5px;
-  }
-
-  .btn-submit {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    background: #d32f2f;
-    color: #fff;
-    border: none;
-    border-radius: 3px;
-    font-family: inherit;
-    font-size: 1.1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    cursor: pointer;
-    transition: background 0.2s;
-    margin-top: 10px;
-  }
+  .field label { font-size: 0.75rem; font-weight: 700; color: #666; text-transform: uppercase; margin-bottom: 4px; }
+  .field input, .field select { padding: 8px; border: 1px solid #ccc; border-radius: 3px; font-family: inherit; font-size: 0.95rem; background: #f8f8f8; color: #222; }
+  .field input:focus, .field select:focus { outline: none; border-color: #d32f2f; background: #fff; }
+  .section-title { font-size: 0.85rem; font-weight: 700; color: #d32f2f; text-transform: uppercase; border-bottom: 1px solid #ddd; padding-bottom: 5px; margin: 15px 0 10px 0; }
+  .btn-submit { display: block; width: 100%; padding: 12px; background: #d32f2f; color: #fff; border: none; border-radius: 3px; font-family: inherit; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 10px; }
   .btn-submit:hover { background: #b71c1c; }
+  .empty-msg { text-align: center; color: #888; padding: 40px; background: #fff; border-radius: 6px; }
+  .hidden { display: none !important; }
 
-  .empty-msg {
-    text-align: center;
-    color: #888;
-    padding: 40px;
-    background: #fff;
-    border-radius: 6px;
-  }
+  /* Card EA FC */
+  .player-card { background: #fff; border-radius: 4px; overflow: hidden; color: #333; box-shadow: 0 4px 12px rgba(0,0,0,0.3); margin-bottom: 20px; display: flex; flex-direction: column; }
+  .pc-header { background: linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%); color: #fff; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; position: relative; }
+  .pc-header::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 40px; background: #fff; clip-path: polygon(100% 0, 100% 100%, 0 100%); z-index: 1; }
+  .pc-header-left { display: flex; align-items: center; gap: 12px; z-index: 2; }
+  .pc-shirt-number { background: #fff; color: #d32f2f; font-size: 1.1rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+  .pc-name { font-size: 1.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
+  .pc-flag { background: #ffd700; color: #333; font-size: 0.75rem; font-weight: 800; padding: 2px 6px; border-radius: 2px; text-transform: uppercase; }
+  .pc-body { display: flex; padding: 15px; gap: 20px; }
+  .pc-info-col { flex: 1; border-right: 1px solid #eee; padding-right: 20px; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+  .pc-info-row { display: flex; justify-content: space-between; font-size: 0.9rem; color: #555; font-weight: 600; }
+  .pc-info-row span:last-child { color: #111; font-weight: 700; }
+  .pc-stats-col { flex: 1.3; display: flex; flex-direction: column; gap: 10px; }
+  .pc-stat-box { background: #3a4358; color: #fff; padding: 8px 15px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; }
+  .pc-stat-label { font-size: 0.85rem; font-weight: 700; color: #a0a8b8; text-transform: uppercase; letter-spacing: 1px; }
+  .pc-stat-value { font-size: 2rem; font-weight: 700; letter-spacing: 1px; line-height: 1; }
+  .pc-attributes { padding: 0 15px 15px 15px; }
+  .pc-attr-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 12px; font-size: 0.9rem; font-weight: 700; color: #333; }
+  .pc-attr-header span:last-child { color: #777; font-weight: 600; }
+  .pc-attr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 40px; }
+  .pc-attr-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-weight: 600; color: #333; }
+  .pc-attr-values { display: flex; gap: 2px; }
+  .pc-badge { padding: 3px 8px; border-radius: 3px; font-size: 0.85rem; font-weight: 700; color: #fff; min-width: 30px; text-align: center; }
+  .badge-orange { background: #f57c00; } .badge-red { background: #d32f2f; } .badge-green { background: #2e7d32; } .badge-yellow { background: #fbc02d; color: #333; }
+  .pc-footer { background: #f5f5f5; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; }
+  .pc-position { background: #333; color: #fff; padding: 4px 12px; border-radius: 3px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pc-actions { display: flex; align-items: center; gap: 8px; }
+  .pc-status { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+  .status-Titular { background: #c8e6c9; color: #1b5e20; } .status-Reserva { background: #bbdefb; color: #0d47a1; } .status-Emprestado { background: #fff9c4; color: #f57f17; } .status-Vendido { background: #e0e0e0; color: #424242; } .status-Lesionado { background: #ffcdd2; color: #b71c1c; }
+  .pc-btn { border: none; padding: 5px 12px; border-radius: 3px; font-family: inherit; font-weight: 700; font-size: 0.8rem; color: #fff; cursor: pointer; }
+  .pc-btn-edit { background: #f57c00; } .pc-btn-del { background: #d32f2f; padding: 5px 10px; }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <div class="top-bar">
-    <h1>Informações do Jogador</h1>
-    <button class="btn-new" id="openModalBtn">+ Novo Jogador</button>
+  <div class="nav-bar">
+    <button class="nav-btn active" onclick="switchScreen('teams')">Times</button>
+    <button class="nav-btn" onclick="switchScreen('ranking')">Ranking & Filtros</button>
   </div>
 
-  <!-- LISTA DE JOGADORES -->
-  <div class="cards-list" id="cardsList"></div>
+  <div id="screen-teams">
+    <div class="top-bar">
+      <h1>Meus Times</h1>
+      <button class="btn-primary" onclick="openModalTeam()">+ Novo Time</button>
+    </div>
+    <div class="teams-grid" id="teamsGrid"></div>
+  </div>
+
+  <div id="screen-team-detail" class="hidden">
+    <button class="btn-back" onclick="switchScreen('teams')">&larr; Voltar para Times</button>
+    <div class="top-bar">
+      <h2 id="teamDetailName">Nome do Time</h2>
+      <button class="btn-primary" onclick="openModalPlayer()">+ Novo Jogador</button>
+    </div>
+    <div id="teamPlayersList"></div>
+  </div>
+
+  <div id="screen-ranking" class="hidden">
+    <h1>Ranking de Jogadores</h1>
+    <p class="subtitle">Filtre e ordene os melhores jogadores do seu banco de dados.</p>
+    <div class="filter-bar">
+      <div class="field"><label>Buscar por Nome</label><input type="text" id="filterName" oninput="renderRanking()" placeholder="Nome..."></div>
+      <div class="field"><label>Time</label><select id="filterTeam" onchange="renderRanking()"><option value="">Todos os Times</option></select></div>
+      <div class="field"><label>Temporada</label><input type="text" id="filterSeason" oninput="renderRanking()" placeholder="Ex: 2024"></div>
+      <div class="field"><label>Status</label><select id="filterStatus" onchange="renderRanking()"><option value="">Todos</option><option value="Titular">Titular</option><option value="Reserva">Reserva</option><option value="Emprestado">Emprestado</option><option value="Vendido">Vendido</option><option value="Lesionado">Lesionado</option></select></div>
+      <div class="field"><label>Ordenar por</label><select id="sortBy" onchange="renderRanking()"><option value="geral">Maior Geral</option><option value="gols">Mais Gols</option><option value="assistencias">Mais Assistências</option><option value="potencial">Maior Potencial</option><option value="idade">Menor Idade</option></select></div>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Nome</th><th>Time</th><th>Temporada</th><th>Gols</th><th>Assist.</th><th>Geral</th><th>Status</th></tr></thead>
+      <tbody id="rankingBody"></tbody>
+    </table>
+  </div>
 </div>
 
-<!-- ===== MODAL DE CADASTRO ===== -->
-<div class="modal-overlay" id="modalOverlay">
+<!-- MODAL TIME -->
+<div class="modal-overlay" id="modalTeam">
   <div class="modal-content">
-    <div class="modal-header">
-      <h2>Cadastrar Novo Jogador</h2>
-      <button class="btn-close" id="closeModalBtn">&times;</button>
-    </div>
-
+    <div class="modal-header"><h2 id="modalTeamTitle">Cadastrar Time</h2><button class="btn-close" onclick="closeModal('modalTeam')">&times;</button></div>
     <div class="modal-body">
-      <form id="playerForm">
-        <div class="section-title">Dados Básicos</div>
-        <div class="form-grid">
-          <div class="field">
-            <label>Nome</label>
-            <input type="text" id="nome" required placeholder="Ex: Ricardo Sanchez">
-          </div>
-          <div class="field">
-            <label>Nacionalidade</label>
-            <input type="text" id="nacionalidade" required placeholder="Ex: Venezuela">
-          </div>
-          <div class="field">
-            <label>Idade</label>
-            <input type="number" id="idade" required min="15" max="50" placeholder="16">
-          </div>
-          <div class="field">
-            <label>Altura (cm)</label>
-            <input type="number" id="altura" required min="120" max="250" placeholder="181">
-          </div>
-          <div class="field">
-            <label>Peso (kg)</label>
-            <input type="number" id="peso" required step="0.1" min="30" max="150" placeholder="80.0">
-          </div>
-          <div class="field">
-            <label>Pé</label>
-            <select id="pe" required>
-              <option value="Esq.">Esquerdo</option>
-              <option value="Dir.">Direito</option>
-              <option value="Ambos">Ambos</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Número da Camisa</label>
-            <input type="number" id="camisa" required min="1" max="99" placeholder="10">
-          </div>
-        </div>
-
-        <div class="section-title">Notas e Posição</div>
-        <div class="form-grid">
-          <div class="field">
-            <label>Geral</label>
-            <input type="number" id="geral" required min="1" max="99" placeholder="65">
-          </div>
-          <div class="field">
-            <label>Potencial</label>
-            <input type="number" id="potencial" required min="1" max="99" placeholder="86">
-          </div>
-          <div class="field">
-            <label>Tipo (Armador...)</label>
-            <input type="text" id="tipo" required placeholder="Armador">
-          </div>
-          <div class="field">
-            <label>Posição</label>
-            <input type="text" id="posicao" required placeholder="Meia Atacante">
-          </div>
-          <div class="field">
-            <label>Status</label>
-            <select id="status" required>
-              <option value="Titular">Titular</option>
-              <option value="Reserva">Reserva</option>
-              <option value="Emprestado">Emprestado</option>
-              <option value="Vendido">Vendido</option>
-              <option value="Lesionado">Lesionado</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="section-title">Pontos Fortes (Atributos)</div>
-        <div class="form-grid">
-          <div class="field">
-            <label>Reação</label>
-            <input type="number" id="reacao" required min="1" max="99" placeholder="69">
-          </div>
-          <div class="field">
-            <label>Visão de Jogo</label>
-            <input type="number" id="visao" required min="1" max="99" placeholder="64">
-          </div>
-          <div class="field">
-            <label>Pos. de Ataque</label>
-            <input type="number" id="ataque" required min="1" max="99" placeholder="60">
-          </div>
-          <div class="field">
-            <label>Controle de Bola</label>
-            <input type="number" id="controle" required min="1" max="99" placeholder="50">
-          </div>
-          <div class="field">
-            <label>Combatividade</label>
-            <input type="number" id="combate" required min="1" max="99" placeholder="52">
-          </div>
-        </div>
-
-        <button type="submit" class="btn-submit">Cadastrar Jogador</button>
+      <form id="teamForm">
+        <div class="field"><label>Nome do Time</label><input type="text" id="teamName" required placeholder="Ex: Milan"></div>
+        <button type="submit" class="btn-submit">Salvar Time</button>
       </form>
     </div>
   </div>
 </div>
 
-<script>
-const STORAGE_KEY = 'ea_fc_players';
-let players = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+<!-- MODAL JOGADOR -->
+<div class="modal-overlay" id="modalPlayer">
+  <div class="modal-content">
+    <div class="modal-header"><h2 id="modalPlayerTitle">Cadastrar Jogador</h2><button class="btn-close" onclick="closeModal('modalPlayer')">&times;</button></div>
+    <div class="modal-body">
+      <form id="playerForm">
+        <input type="hidden" id="playerEditId">
+        <input type="hidden" id="playerTeamId">
+        
+        <div class="section-title">Dados Básicos</div>
+        <div class="form-grid">
+          <div class="field"><label>Nome</label><input type="text" id="nome" required></div>
+          <div class="field"><label>Nacionalidade (Sigla)</label><input type="text" id="nacionalidade" required maxlength="3" placeholder="Ex: VEN"></div>
+          <div class="field"><label>Idade</label><input type="number" id="idade" required min="15" max="50"></div>
+          <div class="field"><label>Altura (cm)</label><input type="number" id="altura" required min="120" max="250"></div>
+          <div class="field"><label>Peso (kg)</label><input type="number" id="peso" required step="0.1"></div>
+          <div class="field"><label>Pé</label><select id="pe" required><option value="Esq.">Esquerdo</option><option value="Dir.">Direito</option><option value="Ambos">Ambos</option></select></div>
+          <div class="field"><label>Camisa</label><input type="number" id="camisa" required min="1" max="99"></div>
+        </div>
 
-const form = document.getElementById('playerForm');
-const cardsList = document.getElementById('cardsList');
-const modalOverlay = document.getElementById('modalOverlay');
-const openModalBtn = document.getElementById('openModalBtn');
-const closeModalBtn = document.getElementById('closeModalBtn');
+        <div class="section-title">Desempenho na Temporada</div>
+        <div class="form-grid">
+          <div class="field"><label>Temporada</label><input type="text" id="temporada" required placeholder="Ex: 2024"></div>
+          <div class="field"><label>Gols</label><input type="number" id="gols" required min="0" value="0"></div>
+          <div class="field"><label>Assistências</label><input type="number" id="assistencias" required min="0" value="0"></div>
+        </div>
 
-// Funções do Modal
-function openModal() {
-  modalOverlay.classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-function closeModal() {
-  modalOverlay.classList.remove('active');
-  document.body.style.overflow = '';
-  form.reset();
-}
-
-openModalBtn.addEventListener('click', openModal);
-closeModalBtn.addEventListener('click', closeModal);
-
-modalOverlay.addEventListener('click', (e) => {
-  if (e.target === modalOverlay) closeModal();
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
-});
-
-// Gera o HTML do card
-function renderCard(p) {
-  const getBadgeColor = (val) => {
-    if (val >= 80) return 'badge-green';
-    if (val >= 70) return 'badge-yellow';
-    if (val >= 60) return 'badge-orange';
-    return 'badge-red';
-  };
-
-  return `
-    <div class="player-card">
-      <div class="card-header">
-        <h2 class="player-name">
-          <span class="shirt-number">${p.camisa}</span>
-          ${p.nome}
-        </h2>
-        <span class="flag-icon">${p.nacionalidade.substring(0,3).toUpperCase()}</span>
-      </div>
-      
-      <div class="card-body">
-        <div class="info-col">
-          <div class="info-row"><span>Idade:</span> <strong>${p.idade}</strong></div>
-          <div class="info-row"><span>Altura:</span> <strong>${p.altura} cm</strong></div>
-          <div class="info-row"><span>Peso:</span> <strong>${p.peso} kg</strong></div>
-          <div class="info-row"><span>Pé:</span> <strong>${p.pe}</strong></div>
+        <div class="section-title">Notas e Posição</div>
+        <div class="form-grid">
+          <div class="field"><label>Geral</label><input type="number" id="geral" required min="1" max="99"></div>
+          <div class="field"><label>Potencial</label><input type="number" id="potencial" required min="1" max="99"></div>
+          <div class="field"><label>Tipo</label><input type="text" id="tipo" required placeholder="Armador"></div>
+          <div class="field"><label>Posição</label><input type="text" id="posicao" required placeholder="Meia Atacante"></div>
+          <div class="field"><label>Status</label><select id="status" required><option value="Titular">Titular</option><option value="Reserva">Reserva</option><option value="Emprestado">Emprestado</option><option value="Vendido">Vendido</option><option value="Lesionado">Lesionado</option></select></div>
         </div>
         
-        <div class="stats-col">
-          <div class="stat-box">
-            <span class="stat-label">Geral</span>
-            <span class="stat-values">${p.geral}</span>
+        <div class="section-title">Pontos Fortes</div>
+        <div class="form-grid">
+          <div class="field"><label>Reação</label><input type="number" id="reacao" required min="1" max="99"></div>
+          <div class="field"><label>Visão de Jogo</label><input type="number" id="visao" required min="1" max="99"></div>
+          <div class="field"><label>Pos. Ataque</label><input type="number" id="ataque" required min="1" max="99"></div>
+          <div class="field"><label>Controle Bola</label><input type="number" id="controle" required min="1" max="99"></div>
+          <div class="field"><label>Combatividade</label><input type="number" id="combate" required min="1" max="99"></div>
+        </div>
+        <button type="submit" class="btn-submit">Salvar Jogador</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- 1. IMPORTANDO O SDK DO SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- 2. IMPORTANDO O SEU ARQUIVO DE SERVIÇOS -->
+<script src="api-service.js"></script>
+
+<script>
+// ============================================
+// ESTADO LOCAL
+// ============================================
+let teams = [];
+let players = [];
+let currentTeamId = null;
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
+async function inicializar() {
+  teams = await Times.listar();
+  players = await Jogadores.listar();
+  renderTeams();
+}
+
+document.getElementById('teamForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const nome = document.getElementById('teamName').value.trim();
+  
+  await Times.criar(nome);
+  closeModal('modalTeam');
+  
+  teams = await Times.listar();
+  renderTeams();
+});
+
+document.getElementById('playerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const editId = document.getElementById('playerEditId').value;
+  
+  const payload = {
+    time_id: Number(document.getElementById('playerTeamId').value),
+    nome: document.getElementById('nome').value.toUpperCase(),
+    nacionalidade: document.getElementById('nacionalidade').value.toUpperCase(),
+    idade: Number(document.getElementById('idade').value),
+    altura_cm: Number(document.getElementById('altura').value),
+    peso_kg: Number(document.getElementById('peso').value),
+    melhor_pe: document.getElementById('pe').value === 'Esq.' ? 'Esquerdo' : (document.getElementById('pe').value === 'Dir.' ? 'Direito' : 'Ambos'),
+    numero_camisa: Number(document.getElementById('camisa').value),
+    temporada: document.getElementById('temporada').value,
+    gols: Number(document.getElementById('gols').value),
+    assistencias: Number(document.getElementById('assistencias').value),
+    geral: Number(document.getElementById('geral').value),
+    potencial: Number(document.getElementById('potencial').value),
+    tipo_jogador: document.getElementById('tipo').value,
+    posicao_principal: document.getElementById('posicao').value.toUpperCase(),
+    status: document.getElementById('status').value,
+    reacao: Number(document.getElementById('reacao').value),
+    visao_de_jogo: Number(document.getElementById('visao').value),
+    pos_de_ataque: Number(document.getElementById('ataque').value),
+    controle_de_bola: Number(document.getElementById('controle').value),
+    combatividade: Number(document.getElementById('combate').value)
+  };
+
+  if (editId) {
+    await Jogadores.atualizar(editId, payload);
+  } else {
+    await Jogadores.criar(payload);
+  }
+  
+  closeModal('modalPlayer');
+  players = await Jogadores.listar();
+  renderTeamPlayers();
+});
+
+// ============================================
+// INTERFACE E RENDERIZAÇÃO
+// ============================================
+function switchScreen(screen) {
+  document.getElementById('screen-teams').classList.add('hidden');
+  document.getElementById('screen-team-detail').classList.add('hidden');
+  document.getElementById('screen-ranking').classList.add('hidden');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+
+  if (screen === 'teams') {
+    document.getElementById('screen-teams').classList.remove('hidden');
+    document.querySelectorAll('.nav-btn')[0].classList.add('active');
+    Times.listar().then(data => { teams = data; renderTeams(); });
+  } else if (screen === 'team-detail') {
+    document.getElementById('screen-team-detail').classList.remove('hidden');
+    renderTeamPlayers();
+  } else if (screen === 'ranking') {
+    document.getElementById('screen-ranking').classList.remove('hidden');
+    document.querySelectorAll('.nav-btn')[1].classList.add('active');
+    populateTeamFilter();
+    Jogadores.listar().then(data => { players = data; renderRanking(); });
+  }
+}
+
+function renderTeams() {
+  const grid = document.getElementById('teamsGrid');
+  if (teams.length === 0) {
+    grid.innerHTML = '<p class="empty-msg">Nenhum time cadastrado. Clique em "+ Novo Time".</p>';
+    return;
+  }
+  grid.innerHTML = teams.map(t => {
+    const count = players.filter(p => p.time_id === t.id).length;
+    return `
+      <div class="team-card" onclick="openTeamDetail(${t.id})">
+        <div class="team-shield">${t.nome.substring(0, 3).toUpperCase()}</div>
+        <h3>${t.nome}</h3>
+        <p>${count} jogador(es)</p>
+      </div>
+    `;
+  }).join('');
+}
+
+function openModalTeam() {
+  document.getElementById('modalTeamTitle').textContent = 'Cadastrar Time';
+  document.getElementById('teamForm').reset();
+  openModal('modalTeam');
+}
+
+function openTeamDetail(teamId) {
+  currentTeamId = teamId;
+  const team = teams.find(t => t.id === teamId);
+  document.getElementById('teamDetailName').textContent = team.nome;
+  Jogadores.listar().then(data => {
+    players = data;
+    switchScreen('team-detail');
+  });
+}
+
+function getBadgeColor(val) {
+  if (val >= 80) return 'badge-green';
+  if (val >= 70) return 'badge-yellow';
+  if (val >= 60) return 'badge-orange';
+  return 'badge-red';
+}
+
+function renderTeamPlayers() {
+  const list = document.getElementById('teamPlayersList');
+  const teamPlayers = players.filter(p => p.time_id === currentTeamId);
+  
+  if (teamPlayers.length === 0) {
+    list.innerHTML = '<p class="empty-msg">Nenhum jogador neste time.</p>';
+    return;
+  }
+
+  list.innerHTML = teamPlayers.map(p => `
+    <div class="player-card">
+      <div class="pc-header">
+        <div class="pc-header-left">
+          <span class="pc-shirt-number">${p.numero_camisa}</span>
+          <h2 class="pc-name">${p.nome}</h2>
+        </div>
+        <span class="pc-flag">${p.nacionalidade.substring(0,3)}</span>
+      </div>
+      
+      <div class="pc-body">
+        <div class="pc-info-col">
+          <div class="pc-info-row"><span>Idade:</span> <span>${p.idade}</span></div>
+          <div class="pc-info-row"><span>Altura:</span> <span>${p.altura_cm} cm</span></div>
+          <div class="pc-info-row"><span>Peso:</span> <span>${p.peso_kg} kg</span></div>
+          <div class="pc-info-row"><span>Pé:</span> <span>${p.melhor_pe === 'Esquerdo' ? 'Esq.' : (p.melhor_pe === 'Direito' ? 'Dir.' : 'Ambos')}</span></div>
+        </div>
+        
+        <div class="pc-stats-col">
+          <div class="pc-stat-box">
+            <span class="pc-stat-label">Geral</span>
+            <span class="pc-stat-value">${p.geral}</span>
           </div>
-          <div class="stat-box" style="background:#2a3345;">
-            <span class="stat-label">Potencial</span>
-            <span class="stat-values">${p.potencial}</span>
+          <div class="pc-stat-box" style="background:#2a3345;">
+            <span class="pc-stat-label">Potencial</span>
+            <span class="pc-stat-value">${p.potencial}</span>
           </div>
         </div>
       </div>
 
-      <div class="attributes-section">
-        <div class="attr-title">Pontos fortes: <span style="float:right; color:#666; font-weight:normal;">Tipo: ${p.tipo}</span></div>
-        <div class="attr-grid">
-          <div class="attr-row">
+      <div class="pc-attributes">
+        <div class="pc-attr-header">
+          <span>Pontos fortes:</span>
+          <span>Tipo: ${p.tipo_jogador}</span>
+        </div>
+        <div class="pc-attr-grid">
+          <div class="pc-attr-row">
             <span>Reação</span>
-            <div class="attr-values">
-              <span class="attr-badge ${getBadgeColor(p.reacao)}">${p.reacao}</span>
-              <span class="attr-badge badge-green">${Math.min(+p.reacao + 24, 99)}</span>
+            <div class="pc-attr-values">
+              <span class="pc-badge ${getBadgeColor(p.reacao)}">${p.reacao}</span>
+              <span class="pc-badge badge-green">${Math.min(Number(p.reacao) + 24, 99)}</span>
             </div>
           </div>
-          <div class="attr-row">
+          <div class="pc-attr-row">
             <span>Visão de Jogo</span>
-            <div class="attr-values">
-              <span class="attr-badge ${getBadgeColor(p.visao)}">${p.visao}</span>
-              <span class="attr-badge badge-green">${Math.min(+p.visao + 30, 99)}</span>
+            <div class="pc-attr-values">
+              <span class="pc-badge ${getBadgeColor(p.visao_de_jogo)}">${p.visao_de_jogo}</span>
+              <span class="pc-badge badge-green">${Math.min(Number(p.visao_de_jogo) + 30, 99)}</span>
             </div>
           </div>
-          <div class="attr-row">
+          <div class="pc-attr-row">
             <span>Pos. de Ataque</span>
-            <div class="attr-values">
-              <span class="attr-badge ${getBadgeColor(p.ataque)}">${p.ataque}</span>
-              <span class="attr-badge badge-green">${Math.min(+p.ataque + 30, 99)}</span>
+            <div class="pc-attr-values">
+              <span class="pc-badge ${getBadgeColor(p.pos_de_ataque)}">${p.pos_de_ataque}</span>
+              <span class="pc-badge badge-green">${Math.min(Number(p.pos_de_ataque) + 30, 99)}</span>
             </div>
           </div>
-          <div class="attr-row">
+          <div class="pc-attr-row">
             <span>Controle de Bola</span>
-            <div class="attr-values">
-              <span class="attr-badge ${getBadgeColor(p.controle)}">${p.controle}</span>
-              <span class="attr-badge badge-green">${Math.min(+p.controle + 42, 99)}</span>
+            <div class="pc-attr-values">
+              <span class="pc-badge ${getBadgeColor(p.controle_de_bola)}">${p.controle_de_bola}</span>
+              <span class="pc-badge badge-green">${Math.min(Number(p.controle_de_bola) + 42, 99)}</span>
             </div>
           </div>
-          <div class="attr-row">
+          <div class="pc-attr-row">
             <span>Combatividade</span>
-            <div class="attr-values">
-              <span class="attr-badge ${getBadgeColor(p.combate)}">${p.combate}</span>
-              <span class="attr-badge badge-yellow">${Math.min(+p.combate + 26, 99)}</span>
+            <div class="pc-attr-values">
+              <span class="pc-badge ${getBadgeColor(p.combatividade)}">${p.combatividade}</span>
+              <span class="pc-badge badge-yellow">${Math.min(Number(p.combatividade) + 26, 99)}</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="card-footer">
-        <span class="position-badge">${p.posicao}</span>
-        <div>
-          <span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span>
-          <button onclick="deletePlayer(${p.id})" style="margin-left:10px; background:#ef4444; color:white; border:none; padding:4px 10px; border-radius:3px; cursor:pointer; font-weight:bold;">X</button>
+      <div class="pc-footer">
+        <span class="pc-position">${p.posicao_principal}</span>
+        <div class="pc-actions">
+          <span style="color:#d32f2f; font-size:0.85rem; font-weight:700; margin-right:10px;">⚽ ${p.gols || 0}</span>
+          <span style="color:#2e7d32; font-size:0.85rem; font-weight:700; margin-right:10px;">👟 ${p.assistencias || 0}</span>
+          
+          <span class="pc-status status-${p.status}">${p.status}</span>
+          <button class="pc-btn pc-btn-edit" onclick="editPlayer(${p.id})">Editar</button>
+          <button class="pc-btn pc-btn-del" onclick="deletePlayer(${p.id})">X</button>
         </div>
       </div>
     </div>
-  `;
+  `).join('');
 }
 
-function renderList() {
-  if (players.length === 0) {
-    cardsList.innerHTML = '<p class="empty-msg">Nenhum jogador cadastrado ainda.<br>Clique em <strong>+ Novo Jogador</strong> para começar.</p>';
+function openModalPlayer() {
+  document.getElementById('modalPlayerTitle').textContent = 'Cadastrar Jogador';
+  document.getElementById('playerEditId').value = '';
+  document.getElementById('playerTeamId').value = currentTeamId;
+  document.getElementById('playerForm').reset();
+  openModal('modalPlayer');
+}
+
+function editPlayer(id) {
+  const p = players.find(x => x.id === id);
+  if (!p) return;
+  
+  document.getElementById('playerEditId').value = p.id;
+  document.getElementById('playerTeamId').value = p.time_id;
+  document.getElementById('nome').value = p.nome;
+  document.getElementById('nacionalidade').value = p.nacionalidade;
+  document.getElementById('idade').value = p.idade;
+  document.getElementById('altura').value = p.altura_cm;
+  document.getElementById('peso').value = p.peso_kg;
+  
+  let peValue = 'Ambos';
+  if (p.melhor_pe === 'Esquerdo') peValue = 'Esq.';
+  else if (p.melhor_pe === 'Direito') peValue = 'Dir.';
+  document.getElementById('pe').value = peValue;
+  
+  document.getElementById('camisa').value = p.numero_camisa;
+  document.getElementById('temporada').value = p.temporada || '';
+  document.getElementById('gols').value = p.gols || 0;
+  document.getElementById('assistencias').value = p.assistencias || 0;
+  document.getElementById('geral').value = p.geral;
+  document.getElementById('potencial').value = p.potencial;
+  document.getElementById('tipo').value = p.tipo_jogador;
+  document.getElementById('posicao').value = p.posicao_principal;
+  document.getElementById('status').value = p.status;
+  document.getElementById('reacao').value = p.reacao;
+  document.getElementById('visao').value = p.visao_de_jogo;
+  document.getElementById('ataque').value = p.pos_de_ataque;
+  document.getElementById('controle').value = p.controle_de_bola;
+  document.getElementById('combate').value = p.combatividade;
+  
+  document.getElementById('modalPlayerTitle').textContent = 'Editar Jogador';
+  openModal('modalPlayer');
+}
+
+async function deletePlayer(id) {
+  if (!confirm('Excluir este jogador?')) return;
+  await Jogadores.excluir(id);
+  players = await Jogadores.listar();
+  renderTeamPlayers();
+}
+
+function populateTeamFilter() {
+  const sel = document.getElementById('filterTeam');
+  sel.innerHTML = '<option value="">Todos os Times</option>' + 
+    teams.map(t => `<option value="${t.id}">${t.nome}</option>`).join('');
+}
+
+function renderRanking() {
+  const nameF = document.getElementById('filterName').value.toLowerCase();
+  const teamF = document.getElementById('filterTeam').value;
+  const seasonF = document.getElementById('filterSeason').value.toLowerCase();
+  const statusF = document.getElementById('filterStatus').value;
+  const sortBy = document.getElementById('sortBy').value;
+
+  let filtered = players.filter(p => {
+    const matchName = p.nome.toLowerCase().includes(nameF);
+    const matchTeam = !teamF || p.time_id === Number(teamF);
+    const matchSeason = !seasonF || (p.temporada && p.temporada.toLowerCase().includes(seasonF));
+    const matchStatus = !statusF || p.status === statusF;
+    return matchName && matchTeam && matchSeason && matchStatus;
+  });
+
+  filtered.sort((a, b) => {
+    if (sortBy === 'geral') return b.geral - a.geral;
+    if (sortBy === 'gols') return (b.gols || 0) - (a.gols || 0);
+    if (sortBy === 'assistencias') return (b.assistencias || 0) - (a.assistencias || 0);
+    if (sortBy === 'potencial') return b.potencial - a.potencial;
+    if (sortBy === 'idade') return a.idade - b.idade;
+    return 0;
+  });
+
+  const tbody = document.getElementById('rankingBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Nenhum jogador encontrado.</td></tr>';
     return;
   }
-  cardsList.innerHTML = players.map(renderCard).join('');
+
+  tbody.innerHTML = filtered.map((p, index) => {
+    const team = teams.find(t => t.id === p.time_id);
+    return `
+      <tr>
+        <td><span class="rank-badge">${index + 1}</span></td>
+        <td><strong>${p.nome}</strong> <span style="color:#888;font-size:0.8rem;">#${p.numero_camisa}</span></td>
+        <td>${team ? team.nome : 'Sem time'}</td>
+        <td>${p.temporada || '-'}</td>
+        <td><strong style="color:#d32f2f;">${p.gols || 0}</strong></td>
+        <td><strong style="color:#2e7d32;">${p.assistencias || 0}</strong></td>
+        <td><strong>${p.geral}</strong></td>
+        <td>${p.status}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
-// Cadastrar
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { 
+  document.getElementById(id).classList.remove('active');
+  document.getElementById(id).querySelector('form').reset();
+}
 
-  const newPlayer = {
-    id: Date.now(),
-    nome: document.getElementById('nome').value,
-    nacionalidade: document.getElementById('nacionalidade').value,
-    idade: document.getElementById('idade').value,
-    altura: document.getElementById('altura').value,
-    peso: document.getElementById('peso').value,
-    pe: document.getElementById('pe').value,
-    camisa: document.getElementById('camisa').value,
-    geral: document.getElementById('geral').value,
-    potencial: document.getElementById('potencial').value,
-    tipo: document.getElementById('tipo').value,
-    posicao: document.getElementById('posicao').value,
-    status: document.getElementById('status').value,
-    reacao: document.getElementById('reacao').value,
-    visao: document.getElementById('visao').value,
-    ataque: document.getElementById('ataque').value,
-    controle: document.getElementById('controle').value,
-    combate: document.getElementById('combate').value,
-  };
-
-  players.push(newPlayer);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
-  
-  renderList();
-  closeModal();
-});
-
-// Deletar
-window.deletePlayer = (id) => {
-  if (!confirm('Deseja remover este jogador?')) return;
-  players = players.filter(p => p.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(players));
-  renderList();
-};
-
-// Inicialização
-renderList();
+// Inicializa a tela
+inicializar();
 </script>
 </body>
 </html>
