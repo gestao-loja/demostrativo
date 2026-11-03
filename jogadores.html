@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerenciador de Futebol</title>
 <style>
-  /* ... (Todo o CSS que já fizemos: fonte, cards do EA FC, modais, etc. Permanece IGUAL) ... */
   @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Rajdhani', sans-serif; background: #1a1f2b; background-image: linear-gradient(135deg, #1a1f2b 0%, #2a3345 100%); color: #fff; padding: 20px; min-height: 100vh; }
@@ -72,14 +71,14 @@
   .pc-stat-box { background: #3a4358; color: #fff; padding: 8px 15px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; }
   .pc-stat-label { font-size: 0.85rem; font-weight: 700; color: #a0a8b8; text-transform: uppercase; letter-spacing: 1px; }
   .pc-stat-value { font-size: 2rem; font-weight: 700; letter-spacing: 1px; line-height: 1; }
-  .pc-attributes { padding: 0 15px 15px 15px; }
-  .pc-attr-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-bottom: 12px; font-size: 0.9rem; font-weight: 700; color: #333; }
-  .pc-attr-header span:last-child { color: #777; font-weight: 600; }
-  .pc-attr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 40px; }
-  .pc-attr-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; font-weight: 600; color: #333; }
-  .pc-attr-values { display: flex; gap: 2px; }
-  .pc-badge { padding: 3px 8px; border-radius: 3px; font-size: 0.85rem; font-weight: 700; color: #fff; min-width: 30px; text-align: center; }
-  .badge-orange { background: #f57c00; } .badge-red { background: #d32f2f; } .badge-green { background: #2e7d32; } .badge-yellow { background: #fbc02d; color: #333; }
+  
+  /* Seção de Estrelas e Dedicação */
+  .pc-traits { padding: 0 15px 15px 15px; display: flex; gap: 20px; }
+  .pc-trait-col { flex: 1; }
+  .pc-trait-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; color: #333; }
+  .pc-trait-value { color: #d32f2f; font-weight: 700; }
+  .stars { color: #fbc02d; font-size: 1.1rem; letter-spacing: 2px; }
+
   .pc-footer { background: #f5f5f5; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; }
   .pc-position { background: #333; color: #fff; padding: 4px 12px; border-radius: 3px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
   .pc-actions { display: flex; align-items: center; gap: 8px; }
@@ -87,6 +86,41 @@
   .status-Titular { background: #c8e6c9; color: #1b5e20; } .status-Reserva { background: #bbdefb; color: #0d47a1; } .status-Emprestado { background: #fff9c4; color: #f57f17; } .status-Vendido { background: #e0e0e0; color: #424242; } .status-Lesionado { background: #ffcdd2; color: #b71c1c; }
   .pc-btn { border: none; padding: 5px 12px; border-radius: 3px; font-family: inherit; font-weight: 700; font-size: 0.8rem; color: #fff; cursor: pointer; }
   .pc-btn-edit { background: #f57c00; } .pc-btn-del { background: #d32f2f; padding: 5px 10px; }
+
+  /* Checkboxes de posição */
+  .positions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: #333;
+    font-weight: 600;
+    cursor: pointer;
+    background: #f8f8f8;
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #eee;
+    transition: background 0.2s;
+  }
+  .checkbox-label:hover {
+    background: #eef1f5;
+  }
+  .checkbox-label input[type="checkbox"] {
+    accent-color: #d32f2f;
+    cursor: pointer;
+  }
+  .pc-footer > div:first-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 50%; /* Para não empurrar os botões para fora */
+}
 </style>
 </head>
 <body>
@@ -175,18 +209,68 @@
         <div class="form-grid">
           <div class="field"><label>Geral</label><input type="number" id="geral" required min="1" max="99"></div>
           <div class="field"><label>Potencial</label><input type="number" id="potencial" required min="1" max="99"></div>
-          <div class="field"><label>Tipo</label><input type="text" id="tipo" required placeholder="Armador"></div>
-          <div class="field"><label>Posição</label><input type="text" id="posicao" required placeholder="Meia Atacante"></div>
+          
+          <!-- POSIÇÕES COM CHECKBOX -->
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>Posições (Selecione uma ou mais)</label>
+            <div class="positions-grid">
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="GOL"> GOL (Goleiro)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="ZAG"> ZAG (Zagueiro)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="LD"> LD (Lateral Direito)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="LE"> LE (Lateral Esquerdo)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="VOL"> VOL (Volante)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="MC"> MC (Meio-Campista)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="MEI"> MEI (Meia Atacante)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="MD"> MD (Meia Direita)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="ME"> ME (Meia Esquerda)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="PD"> PD (Ponta Direita)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="PE"> PE (Ponta Esquerda)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="SA"> SA (Segundo Atacante)</label>
+              <label class="checkbox-label"><input type="checkbox" name="posicao" value="ATA"> ATA (Atacante)</label>
+            </div>
+          </div>
+
           <div class="field"><label>Status</label><select id="status" required><option value="Titular">Titular</option><option value="Reserva">Reserva</option><option value="Emprestado">Emprestado</option><option value="Vendido">Vendido</option><option value="Lesionado">Lesionado</option></select></div>
         </div>
         
-        <div class="section-title">Pontos Fortes</div>
+        <div class="section-title">Atributos e Habilidades</div>
         <div class="form-grid">
-          <div class="field"><label>Reação</label><input type="number" id="reacao" required min="1" max="99"></div>
-          <div class="field"><label>Visão de Jogo</label><input type="number" id="visao" required min="1" max="99"></div>
-          <div class="field"><label>Pos. Ataque</label><input type="number" id="ataque" required min="1" max="99"></div>
-          <div class="field"><label>Controle Bola</label><input type="number" id="controle" required min="1" max="99"></div>
-          <div class="field"><label>Combatividade</label><input type="number" id="combate" required min="1" max="99"></div>
+          <div class="field">
+            <label>Dedicação no Ataque</label>
+            <select id="dedicacao_ataque" required>
+              <option value="Baixa">Baixa</option>
+              <option value="Média" selected>Média</option>
+              <option value="Alta">Alta</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Dedicação na Defesa</label>
+            <select id="dedicacao_defesa" required>
+              <option value="Baixa">Baixa</option>
+              <option value="Média" selected>Média</option>
+              <option value="Alta">Alta</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Perna Ruim (1-5)</label>
+            <select id="perna_ruim" required>
+              <option value="1">1 Estrela</option>
+              <option value="2">2 Estrelas</option>
+              <option value="3" selected>3 Estrelas</option>
+              <option value="4">4 Estrelas</option>
+              <option value="5">5 Estrelas</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Fintas (1-5)</label>
+            <select id="fintas" required>
+              <option value="1">1 Estrela</option>
+              <option value="2">2 Estrelas</option>
+              <option value="3" selected>3 Estrelas</option>
+              <option value="4">4 Estrelas</option>
+              <option value="5">5 Estrelas</option>
+            </select>
+          </div>
         </div>
         <button type="submit" class="btn-submit">Salvar Jogador</button>
       </form>
@@ -194,10 +278,8 @@
   </div>
 </div>
 
-<!-- 1. IMPORTANDO O SDK DO SUPABASE -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<!-- 2. IMPORTANDO O SEU ARQUIVO DE SERVIÇOS -->
-<script src="config.js"></script> <!-- Adicionado aqui -->
+<script src="config.js"></script>
 <script src="api-service.js"></script>
 
 <script>
@@ -207,6 +289,20 @@
 let teams = [];
 let players = [];
 let currentTeamId = null;
+
+// ============================================
+// FUNÇÕES AUXILIARES
+// ============================================
+function obterTipoJogador(posicao) {
+  const pos = posicao.toUpperCase().trim();
+  if (pos === 'GOL') return 'Goleiro';
+  if (pos === 'ZAG' || pos === 'LD' || pos === 'LE') return 'Defensor';
+  if (pos === 'VOL' || pos === 'MC') return 'Meio-campista';
+  if (pos === 'MEI') return 'Armador';
+  if (pos === 'MD' || pos === 'ME' || pos === 'PD' || pos === 'PE') return 'Ponta';
+  if (pos === 'SA' || pos === 'ATA') return 'Atacante';
+  return 'Jogador';
+}
 
 // ============================================
 // INICIALIZAÇÃO
@@ -232,8 +328,29 @@ document.getElementById('playerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const editId = document.getElementById('playerEditId').value;
   
+  const rawTeamId = document.getElementById('playerTeamId').value;
+  const time_id = isNaN(Number(rawTeamId)) ? rawTeamId : Number(rawTeamId);
+
+  if (!time_id) {
+    alert("Erro: Time não identificado. Volte e clique no time novamente.");
+    return;
+  }
+
+  // Coleta todas as posições marcadas
+  const checkboxes = document.querySelectorAll('input[name="posicao"]:checked');
+  const posicoesSelecionadas = Array.from(checkboxes).map(cb => cb.value);
+
+  if (posicoesSelecionadas.length === 0) {
+    alert("Por favor, selecione pelo menos uma posição.");
+    return;
+  }
+
+  const posicoesString = posicoesSelecionadas.join(', ');
+  const posicaoPrincipal = posicoesSelecionadas[0];
+  const tipoJogador = obterTipoJogador(posicaoPrincipal);
+
   const payload = {
-    time_id: Number(document.getElementById('playerTeamId').value),
+    time_id: time_id,
     nome: document.getElementById('nome').value.toUpperCase(),
     nacionalidade: document.getElementById('nacionalidade').value.toUpperCase(),
     idade: Number(document.getElementById('idade').value),
@@ -246,25 +363,28 @@ document.getElementById('playerForm').addEventListener('submit', async (e) => {
     assistencias: Number(document.getElementById('assistencias').value),
     geral: Number(document.getElementById('geral').value),
     potencial: Number(document.getElementById('potencial').value),
-    tipo_jogador: document.getElementById('tipo').value,
-    posicao_principal: document.getElementById('posicao').value.toUpperCase(),
+    posicao_principal: posicoesString,
+    tipo_jogador: tipoJogador, 
     status: document.getElementById('status').value,
-    reacao: Number(document.getElementById('reacao').value),
-    visao_de_jogo: Number(document.getElementById('visao').value),
-    pos_de_ataque: Number(document.getElementById('ataque').value),
-    controle_de_bola: Number(document.getElementById('controle').value),
-    combatividade: Number(document.getElementById('combate').value)
+    dedicacao_ataque: document.getElementById('dedicacao_ataque').value,
+    dedicacao_defesa: document.getElementById('dedicacao_defesa').value,
+    perna_ruim: Number(document.getElementById('perna_ruim').value),
+    fintas: Number(document.getElementById('fintas').value)
   };
 
-  if (editId) {
-    await Jogadores.atualizar(editId, payload);
-  } else {
-    await Jogadores.criar(payload);
+  try {
+    if (editId) {
+      await Jogadores.atualizar(editId, payload);
+    } else {
+      await Jogadores.criar(payload);
+    }
+    
+    closeModal('modalPlayer');
+    players = await Jogadores.listar();
+    renderTeamPlayers();
+  } catch (error) {
+    console.error("Erro ao salvar jogador no banco:", error);
   }
-  
-  closeModal('modalPlayer');
-  players = await Jogadores.listar();
-  renderTeamPlayers();
 });
 
 // ============================================
@@ -298,9 +418,9 @@ function renderTeams() {
     return;
   }
   grid.innerHTML = teams.map(t => {
-    const count = players.filter(p => p.time_id === t.id).length;
+    const count = players.filter(p => String(p.time_id) === String(t.id)).length;
     return `
-      <div class="team-card" onclick="openTeamDetail(${t.id})">
+      <div class="team-card" onclick="openTeamDetail('${t.id}')">
         <div class="team-shield">${t.nome.substring(0, 3).toUpperCase()}</div>
         <h3>${t.nome}</h3>
         <p>${count} jogador(es)</p>
@@ -317,36 +437,58 @@ function openModalTeam() {
 
 function openTeamDetail(teamId) {
   currentTeamId = teamId;
-  const team = teams.find(t => t.id === teamId);
+  const team = teams.find(t => String(t.id) === String(teamId));
+  
+  if (!team) {
+    alert("Erro: Time não encontrado.");
+    return;
+  }
+  
   document.getElementById('teamDetailName').textContent = team.nome;
+  
   Jogadores.listar().then(data => {
     players = data;
     switchScreen('team-detail');
   });
 }
 
-function getBadgeColor(val) {
-  if (val >= 80) return 'badge-green';
-  if (val >= 70) return 'badge-yellow';
-  if (val >= 60) return 'badge-orange';
-  return 'badge-red';
+function renderStars(qtd) {
+  let stars = '';
+  for (let i = 1; i <= 5; i++) {
+    stars += i <= qtd ? '★' : '☆';
+  }
+  return `<span class="stars">${stars}</span>`;
 }
 
 function renderTeamPlayers() {
   const list = document.getElementById('teamPlayersList');
-  const teamPlayers = players.filter(p => p.time_id === currentTeamId);
+  const teamPlayers = players.filter(p => String(p.time_id) === String(currentTeamId));
   
   if (teamPlayers.length === 0) {
     list.innerHTML = '<p class="empty-msg">Nenhum jogador neste time.</p>';
     return;
   }
 
-  list.innerHTML = teamPlayers.map(p => `
+  list.innerHTML = teamPlayers.map(p => {
+    // Transforma "MEI, PD" em um array ["MEI", "PD"]
+    const posicoes = p.posicao_principal ? p.posicao_principal.split(',').map(s => s.trim()) : [];
+    
+    // Cria uma tag HTML para cada posição
+    const posicoesTags = posicoes.map(pos => 
+      `<span class="pc-position" style="margin-right: 5px;">${pos}</span>`
+    ).join('');
+
+    return `
     <div class="player-card">
       <div class="pc-header">
         <div class="pc-header-left">
           <span class="pc-shirt-number">${p.numero_camisa}</span>
-          <h2 class="pc-name">${p.nome}</h2>
+          <h2 class="pc-name">
+            ${p.nome} 
+            <span style="font-size: 0.9rem; font-weight: 500; color: #ffebee; margin-left: 8px; text-transform: uppercase;">
+              (${p.tipo_jogador || 'Jogador'})
+            </span>
+          </h2>
         </div>
         <span class="pc-flag">${p.nacionalidade.substring(0,3)}</span>
       </div>
@@ -371,75 +513,59 @@ function renderTeamPlayers() {
         </div>
       </div>
 
-      <div class="pc-attributes">
-        <div class="pc-attr-header">
-          <span>Pontos fortes:</span>
-          <span>Tipo: ${p.tipo_jogador}</span>
+      <div class="pc-traits">
+        <div class="pc-trait-col">
+          <div class="pc-trait-item"><span>Dedicação Ataque:</span> <span class="pc-trait-value">${p.dedicacao_ataque}</span></div>
+          <div class="pc-trait-item"><span>Dedicação Defesa:</span> <span class="pc-trait-value">${p.dedicacao_defesa}</span></div>
         </div>
-        <div class="pc-attr-grid">
-          <div class="pc-attr-row">
-            <span>Reação</span>
-            <div class="pc-attr-values">
-              <span class="pc-badge ${getBadgeColor(p.reacao)}">${p.reacao}</span>
-              <span class="pc-badge badge-green">${Math.min(Number(p.reacao) + 24, 99)}</span>
-            </div>
-          </div>
-          <div class="pc-attr-row">
-            <span>Visão de Jogo</span>
-            <div class="pc-attr-values">
-              <span class="pc-badge ${getBadgeColor(p.visao_de_jogo)}">${p.visao_de_jogo}</span>
-              <span class="pc-badge badge-green">${Math.min(Number(p.visao_de_jogo) + 30, 99)}</span>
-            </div>
-          </div>
-          <div class="pc-attr-row">
-            <span>Pos. de Ataque</span>
-            <div class="pc-attr-values">
-              <span class="pc-badge ${getBadgeColor(p.pos_de_ataque)}">${p.pos_de_ataque}</span>
-              <span class="pc-badge badge-green">${Math.min(Number(p.pos_de_ataque) + 30, 99)}</span>
-            </div>
-          </div>
-          <div class="pc-attr-row">
-            <span>Controle de Bola</span>
-            <div class="pc-attr-values">
-              <span class="pc-badge ${getBadgeColor(p.controle_de_bola)}">${p.controle_de_bola}</span>
-              <span class="pc-badge badge-green">${Math.min(Number(p.controle_de_bola) + 42, 99)}</span>
-            </div>
-          </div>
-          <div class="pc-attr-row">
-            <span>Combatividade</span>
-            <div class="pc-attr-values">
-              <span class="pc-badge ${getBadgeColor(p.combatividade)}">${p.combatividade}</span>
-              <span class="pc-badge badge-yellow">${Math.min(Number(p.combatividade) + 26, 99)}</span>
-            </div>
-          </div>
+        <div class="pc-trait-col">
+          <div class="pc-trait-item"><span>Perna Ruim:</span> ${renderStars(p.perna_ruim)}</div>
+          <div class="pc-trait-item"><span>Fintas:</span> ${renderStars(p.fintas)}</div>
         </div>
       </div>
 
       <div class="pc-footer">
-        <span class="pc-position">${p.posicao_principal}</span>
+        <div>
+          ${posicoesTags}
+        </div>
         <div class="pc-actions">
           <span style="color:#d32f2f; font-size:0.85rem; font-weight:700; margin-right:10px;">⚽ ${p.gols || 0}</span>
           <span style="color:#2e7d32; font-size:0.85rem; font-weight:700; margin-right:10px;">👟 ${p.assistencias || 0}</span>
           
           <span class="pc-status status-${p.status}">${p.status}</span>
-          <button class="pc-btn pc-btn-edit" onclick="editPlayer(${p.id})">Editar</button>
-          <button class="pc-btn pc-btn-del" onclick="deletePlayer(${p.id})">X</button>
+          <button class="pc-btn pc-btn-edit" onclick="editPlayer('${p.id}')">Editar</button>
+          <button class="pc-btn pc-btn-del" onclick="deletePlayer('${p.id}')">X</button>
         </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function openModalPlayer() {
+  if (!currentTeamId) {
+    alert("Erro: Nenhum time selecionado. Volte e clique no time.");
+    return;
+  }
+  
   document.getElementById('modalPlayerTitle').textContent = 'Cadastrar Jogador';
   document.getElementById('playerEditId').value = '';
   document.getElementById('playerTeamId').value = currentTeamId;
   document.getElementById('playerForm').reset();
+  
+  // Limpa todos os checkboxes
+  document.querySelectorAll('input[name="posicao"]').forEach(cb => cb.checked = false);
+
+  // Valores padrão
+  document.getElementById('dedicacao_ataque').value = 'Média';
+  document.getElementById('dedicacao_defesa').value = 'Média';
+  document.getElementById('perna_ruim').value = '3';
+  document.getElementById('fintas').value = '3';
+  
   openModal('modalPlayer');
 }
 
 function editPlayer(id) {
-  const p = players.find(x => x.id === id);
+  const p = players.find(x => String(x.id) === String(id));
   if (!p) return;
   
   document.getElementById('playerEditId').value = p.id;
@@ -461,14 +587,23 @@ function editPlayer(id) {
   document.getElementById('assistencias').value = p.assistencias || 0;
   document.getElementById('geral').value = p.geral;
   document.getElementById('potencial').value = p.potencial;
-  document.getElementById('tipo').value = p.tipo_jogador;
-  document.getElementById('posicao').value = p.posicao_principal;
+  
+  // Marca as posições salvas
+  document.querySelectorAll('input[name="posicao"]').forEach(cb => cb.checked = false);
+  if (p.posicao_principal) {
+    const posicoesSalvas = p.posicao_principal.split(',').map(s => s.trim());
+    document.querySelectorAll('input[name="posicao"]').forEach(cb => {
+      if (posicoesSalvas.includes(cb.value)) {
+        cb.checked = true;
+      }
+    });
+  }
+  
   document.getElementById('status').value = p.status;
-  document.getElementById('reacao').value = p.reacao;
-  document.getElementById('visao').value = p.visao_de_jogo;
-  document.getElementById('ataque').value = p.pos_de_ataque;
-  document.getElementById('controle').value = p.controle_de_bola;
-  document.getElementById('combate').value = p.combatividade;
+  document.getElementById('dedicacao_ataque').value = p.dedicacao_ataque || 'Média';
+  document.getElementById('dedicacao_defesa').value = p.dedicacao_defesa || 'Média';
+  document.getElementById('perna_ruim').value = p.perna_ruim || '3';
+  document.getElementById('fintas').value = p.fintas || '3';
   
   document.getElementById('modalPlayerTitle').textContent = 'Editar Jogador';
   openModal('modalPlayer');
@@ -496,9 +631,13 @@ function renderRanking() {
 
   let filtered = players.filter(p => {
     const matchName = p.nome.toLowerCase().includes(nameF);
-    const matchTeam = !teamF || p.time_id === Number(teamF);
+    const matchTeam = !teamF || String(p.time_id) === String(teamF);
     const matchSeason = !seasonF || (p.temporada && p.temporada.toLowerCase().includes(seasonF));
     const matchStatus = !statusF || p.status === statusF;
+    
+    // Filtro de posição busca dentro da string de posições salvas
+    const posF = document.getElementById('filterSeason'); // Não tem campo de posição no ranking atual, mas se tiver, usa includes
+    
     return matchName && matchTeam && matchSeason && matchStatus;
   });
 
@@ -518,7 +657,7 @@ function renderRanking() {
   }
 
   tbody.innerHTML = filtered.map((p, index) => {
-    const team = teams.find(t => t.id === p.time_id);
+    const team = teams.find(t => String(t.id) === String(p.time_id));
     return `
       <tr>
         <td><span class="rank-badge">${index + 1}</span></td>
