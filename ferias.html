@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Minhas Viagens</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* Adicionando um estilo para a barra de progresso do orçamento */
+  .progress-container { background: #e5e7eb; border-radius: 10px; height: 12px; width: 100%; overflow: hidden; margin-top: 5px; }
+  .progress-bar { height: 100%; transition: width 0.3s; }
+  .progress-ok { background: #16a34a; }
+  .progress-warning { background: #f59e0b; }
+  .progress-danger { background: #dc2626; }
+  
+  .budget-info { font-size: 0.8rem; color: #6b7280; margin-top: 5px; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body data-page="ferias">
+
+<div class="app">
+  <div id="menu"></div>
+
+  <main class="main">
+    <div class="topbar">
+      <h1>Programação de Férias</h1>
+      <div class="user-info"><strong id="userName">Carregando...</strong></div>
+    </div>
+
+    <div class="header-green">
+      <div>
+        <h1>Minhas Viagens</h1>
+        <p id="headerSubtitle">Gerencie suas férias e orçamentos</p>
+      </div>
+      <button class="btn-white" onclick="abrirModalFerias()">+ Nova Viagem</button>
+    </div>
+
+    <div class="tabs-container">
+      <button class="tab-btn active" id="tabAtuais" onclick="mudarAba('atuais')">✈️ Viagens Atuais</button>
+      <button class="tab-btn" id="tabConcluidas" onclick="mudarAba('concluidas')">✅ Viagens Concluídas</button>
+    </div>
+
+    <div class="viagens-grid" id="viagensGrid"></div>
+
+    <div id="detalhesViagem" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h2 id="nomeViagemSelecionada" style="margin: 0; color: #1a1f2b;"></h2>
+        <button class="btn btn-secondary" onclick="fecharDetalhes()">Fechar Agenda</button>
+      </div>
+
+      <!-- NOVO: RESUMO DO ORÇAMENTO -->
+      <div style="background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+          <div>
+            <span style="font-size: 0.85rem; color: #666; display: block;">Orçamento Definido</span>
+            <strong id="viewOrcamento" style="font-size: 1.2rem; color: #4f46e5;">R$ 0,00</strong>
+          </div>
+          <div style="text-align: right;">
+            <span style="font-size: 0.85rem; color: #666; display: block;">Custo Real (Agenda + Gastos)</span>
+            <strong id="viewCustoReal" style="font-size: 1.2rem; color: #dc2626;">R$ 0,00</strong>
+          </div>
+        </div>
+        
+        <div class="progress-container">
+          <div class="progress-bar progress-ok" id="barraOrcamento" style="width: 0%;"></div>
+        </div>
+        <div class="budget-info">
+          <span id="statusOrcamento">Calculando...</span>
+          <span id="saldoOrcamento" style="font-weight: 700;">R$ 0,00 restante</span>
+        </div>
+      </div>
+
+      <div class="agenda-wrapper" id="agendaWrapper">
+        <table class="agenda-table" id="agendaTable">
+          <thead id="agendaThead"></thead>
+          <tbody id="agendaTbody"></tbody>
+        </table>
+      </div>
+
+      <div class="footer-info" id="footerInfo">
+        <div>
+          <h3>Atrações Pendentes</h3>
+          <ul class="atracao-list" id="listaAtracoes"></ul>
+        </div>
+        
+        <div>
+          <h3>Financeiro</h3>
+          <div id="listaFinanceiro"></div>
+          <button class="btn btn-secondary" style="width: 100%; margin-top: 15px;" onclick="abrirModalGastoAvulso()">+ Adicionar Gasto Avulso</button>
+          <div id="totalGeralBox" style="display: none; margin-top: 15px; border-top: 2px solid #333; padding-top: 10px;">
+            <span style="font-size: 1rem; color: #333; font-weight: 700;">TOTAL GERAL:</span>
+            <strong style="font-size: 1.2rem; color: #d32f2f; float: right;" id="valorTotalGeral">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <div>
+          <h3>Legenda</h3>
+          <div class="legenda-item legenda-verde"><div class="legenda-cor"></div> Atração Gratuita</div>
+          <div class="legenda-item legenda-vermelho"><div class="legenda-cor"></div> Atração Paga</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL FÉRIAS -->
+<div class="modal-overlay" id="modalFerias">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalFeriasTitle">Cadastrar Férias</h2>
+      <button class="btn-close" onclick="closeModal('modalFerias')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="feriasForm">
+        <input type="hidden" id="feriasEditId">
+        <div class="field"><label>Nome da Viagem</label><input type="text" id="nomeFerias" required></div>
+        <div class="field"><label>Data de Ida</label><input type="date" id="dataIda" required></div>
+        <div class="field"><label>Data de Volta</label><input type="date" id="dataVolta" required></div>
+        
+        <!-- NOVO: CAMPO DE ORÇAMENTO -->
+        <div class="field">
+          <label>Orçamento da Viagem (R$)</label>
+          <input type="text" id="orcamentoFerias" placeholder="Ex: 5000,00" oninput="formatarMoedaInput(this)">
+        </div>
+
+        <div class="field" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label>Horário Inicial</label>
+            <input type="time" id="horaInicioFerias" required>
+          </div>
+          <div style="flex: 1;">
+            <label>Horário Final</label>
+            <input type="time" id="horaFimFerias" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">Salvar Férias</button>
+        <button type="button" class="btn-danger" id="btnExcluirFeriasModal" onclick="excluirFeriasDoModal()">Excluir Viagem</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EVENTO -->
+<div class="modal-overlay" id="modalEvento">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="eventoTitle">Adicionar Atração</h2>
+      <button class="btn-close" onclick="closeModal('modalEvento')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="eventoForm">
+        <input type="hidden" id="eventoId">
+        <input type="hidden" id="eventoFeriasId">
+        <input type="hidden" id="eventoData">
+        <input type="hidden" id="eventoHoraInicio">
+
+        <div class="field"><label>Nome da Atração</label><input type="text" id="nomeAtracao" required></div>
+        <div class="field"><label>Endereço</label><input type="text" id="endereco"></div>
+        <div class="field"><label>Observações</label><textarea id="observacoes" placeholder="Detalhes..."></textarea></div>
+        
+        <div class="field" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label>Qtd. Pessoas</label>
+            <input type="number" id="quantidade_pessoas" min="1" value="1" required>
+          </div>
+          <div style="flex: 1;">
+            <label>Valor por Pessoa (R$)</label>
+            <input type="number" step="0.01" id="valor_por_pessoa" value="0.00" required>
+          </div>
+        </div>
+        
+        <div class="field">
+          <label>Horário Início</label>
+          <input type="time" id="horaInicio" required>
+        </div>
+
+        <div class="box-gastos">
+          <h4>Outros Gastos (Estacionamento, Taxas, etc)</h4>
+          <div id="listaGastosAtracao"></div>
+          <button type="button" class="btn-add-gasto" onclick="adicionarCampoGasto()">+ Adicionar Outro Gasto</button>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">Salvar Atração</button>
+        <button type="button" class="btn-conclude" id="btnConcluirEventoModal" onclick="concluirEventoDoModal()">Marcar como Concluído</button>
+        <button type="button" class="btn-danger" id="btnExcluirEventoModal" onclick="excluirEventoDoModal()">Excluir Atração</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GASTO AVULSO -->
+<div class="modal-overlay" id="modalGastoAvulso">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Adicionar Gasto Avulso</h2>
+      <button class="btn-close" onclick="closeModal('modalGastoAvulso')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="gastoAvulsoForm">
+        <div class="field"><label>Descrição do Gasto</label><input type="text" id="descricaoGastoAvulso" required placeholder="Ex: Passagem..."></div>
+        <div class="field"><label>Valor Total (R$)</label><input type="number" step="0.01" id="valorGastoAvulso" value="0.00" required></div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 15px;">Salvar Gasto</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+  let todasFerias = [];
+  let todasFeriasConcluidas = [];
+  let todosEventos = [];
+  let todosGastosAvulsos = [];
+  let feriasAtual = null;
+  let abaAtual = 'atuais';
+
+  // Formatação de Moeda (Para o Input)
+  function formatarMoedaInput(input) {
+    let v = input.value.replace(/\D/g, '');
+    v = (v / 100).toFixed(2) + '';
+    v = v.replace(".", ",");
+    v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+    v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+    input.value = v;
+  }
+
+  function desformatarMoeda(valor) {
+    if (!valor) return 0;
+    let v = valor.replace(/\./g, '').replace(',', '.').trim();
+    return parseFloat(v) || 0;
+  }
+
+  async function initFeriasApp() {
+    if (!window.currentUser) return;
+    document.getElementById('userName').textContent = window.currentUser.email;
+    await carregarFerias();
+  }
+
+  async function carregarFerias() {
+    const { data, error } = await db.from('ferias').select('*').eq('user_id', window.currentUser.id).order('data_ida');
+    if (error) return console.error('Erro:', error);
+    
+    todasFerias = data.filter(f => !f.concluida);
+    todasFeriasConcluidas = data.filter(f => f.concluida);
+    
+    for (const f of data) {
+      const { data: evs } = await db.from('eventos').select('valor, gastos_extras').eq('ferias_id', f.id);
+      const { data: gts } = await db.from('gastos_avulsos').select('valor').eq('ferias_id', f.id);
+      
+      let total = 0;
+      if (evs) evs.forEach(ev => {
+        total += Number(ev.valor || 0);
+        if (Array.isArray(ev.gastos_extras)) {
+          ev.gastos_extras.forEach(g => total += Number(g.valor || 0));
+        }
+      });
+      if (gts) gts.forEach(g => total += Number(g.valor || 0));
+      
+      f._total = total;
+    }
+
+    renderViagens();
+  }
+
+  function mudarAba(aba) {
+    abaAtual = aba;
+    document.getElementById('tabAtuais').classList.toggle('active', aba === 'atuais');
+    document.getElementById('tabConcluidas').classList.toggle('active', aba === 'concluidas');
+    renderViagens();
+  }
+
+  function renderViagens() {
+    const grid = document.getElementById('viagensGrid');
+    const lista = abaAtual === 'atuais' ? todasFerias : todasFeriasConcluidas;
+    
+    if (lista.length === 0) {
+      grid.innerHTML = `<p style="color: #666; text-align: center; width: 100%;">Nenhuma viagem ${abaAtual === 'atuais' ? 'atual' : 'concluída'} encontrada.</p>`;
+      return;
+    }
+
+    grid.innerHTML = lista.map(f => {
+      const dtIda = new Date(f.data_ida + 'T00:00:00').toLocaleDateString('pt-BR');
+      const dtVolta = new Date(f.data_volta + 'T00:00:00').toLocaleDateString('pt-BR');
+      const valorTotal = f._total || 0;
+      const formatado = valorTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+      
+      const orcamento = Number(f.orcamento) || 0;
+      const formatadoOrcamento = orcamento > 0 ? orcamento.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : 'Não definido';
+
+      const isConcluida = f.concluida;
+      const cardClass = isConcluida ? 'viagem-card concluida' : 'viagem-card';
+      
+      const btnAcao = isConcluida 
+        ? `<button class="btn-card btn-card-outline" onclick="desmarcarConcluida('${f.id}')" title="Reabrir Viagem" style="width: 100%;">🔄 Reabrir Viagem</button>`
+        : `<button class="btn-card btn-card-success" onclick="marcarConcluida('${f.id}')" title="Marcar como Concluída" style="width: 100%;">✅ Concluir Viagem</button>`;
+
+      return `
+        <div class="${cardClass}">
+          <div>
+            <div class="viagem-header">
+              <h3 class="viagem-title">${f.nome_ferias}</h3>
+            </div>
+            <div class="viagem-dates">
+              📅 ${dtIda} a ${dtVolta}
+            </div>
+            
+            <!-- NOVO: CUSTO E ORÇAMENTO NO CARD -->
+            <div class="viagem-financeiro" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span>Orçamento:</span>
+                <strong style="color: #4f46e5;">${formatadoOrcamento}</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; width: 100%;">
+                <span>Custo Real:</span>
+                <strong>${formatado}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="viagem-actions-container">
+            <div class="viagem-actions-top">
+              <button class="btn-card btn-card-primary" onclick="abrirAgenda('${f.id}', '${f.nome_ferias.replace(/'/g, "\\'")}', '${f.data_ida}', '${f.data_volta}', '${f.hora_inicio}', '${f.hora_fim}', ${orcamento})">📋 Abrir Agenda</button>
+              
+              <div class="viagem-actions-icons">
+                <button class="btn-card btn-card-icon btn-card-outline" onclick="abrirModalFerias('${f.id}')" title="Editar Viagem">✏️</button>
+                <button class="btn-card btn-card-icon btn-card-danger" onclick="excluirFerias('${f.id}', '${f.nome_ferias.replace(/'/g, "\\'")}')" title="Excluir Viagem">🗑️</button>
+              </div>
+            </div>
+            
+            <div class="viagem-actions-bottom">
+              ${btnAcao}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function marcarConcluida(id) {
+    await db.from('ferias').update({ concluida: true }).eq('id', id);
+    await carregarFerias();
+  }
+
+  async function desmarcarConcluida(id) {
+    await db.from('ferias').update({ concluida: false }).eq('id', id);
+    await carregarFerias();
+  }
+
+  async function abrirAgenda(id, nome, dataIda, dataVolta, horaInicio, horaFim, orcamento) {
+    feriasAtual = { id, nome, dataIda, dataVolta, horaInicio, horaFim, orcamento: Number(orcamento) };
+    document.getElementById('viagensGrid').style.display = 'none';
+    document.querySelector('.tabs-container').style.display = 'none';
+    document.getElementById('detalhesViagem').style.display = 'block';
+    document.getElementById('nomeViagemSelecionada').textContent = `Agenda: ${nome}`;
+    
+    await carregarEventos(id);
+  }
+
+  function fecharDetalhes() {
+    document.getElementById('detalhesViagem').style.display = 'none';
+    document.getElementById('viagensGrid').style.display = 'grid';
+    document.querySelector('.tabs-container').style.display = 'flex';
+    feriasAtual = null;
+    carregarFerias();
+  }
+
+  async function carregarEventos(feriasId) {
+    const { data, error } = await db.from('eventos').select('*').eq('ferias_id', feriasId).order('hora_inicio');
+    if (error) return console.error('Erro:', error);
+    todosEventos = data || [];
+    
+    const { data: dataGastos, error: errorGastos } = await db.from('gastos_avulsos').select('*').eq('ferias_id', feriasId);
+    if (!errorGastos) todosGastosAvulsos = dataGastos || [];
+
+    renderAgenda();
+  }
+
+  function renderAgenda() {
+    const thead = document.getElementById('agendaThead');
+    const tbody = document.getElementById('agendaTbody');
+    const footer = document.getElementById('footerInfo');
+    
+    if (!feriasAtual) return;
+
+    const dataInicio = new Date(feriasAtual.dataIda + 'T00:00:00');
+    const dataFim = new Date(feriasAtual.dataVolta + 'T00:00:00');
+    const dias = [];
+    let dataLoop = new Date(dataInicio);
+    while (dataLoop <= dataFim) {
+      dias.push(new Date(dataLoop));
+      dataLoop.setDate(dataLoop.getDate() + 1);
+    }
+
+    let theadHtml = '<tr><th style="width: 80px; background:#fff;"></th>';
+    dias.forEach(d => {
+      theadHtml += `<th><strong>${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</strong>${d.toLocaleDateString('pt-BR', { weekday: 'long' })}</th>`;
+    });
+    theadHtml += '</tr>';
+    thead.innerHTML = theadHtml;
+
+    let tbodyHtml = '';
+    const hInicio = parseInt(feriasAtual.horaInicio.split(':')[0], 10);
+    const hFim = parseInt(feriasAtual.horaFim.split(':')[0], 10);
+
+    for (let h = hInicio; h <= hFim; h++) {
+      const horaStr = String(h).padStart(2, '0') + ':00';
+      tbodyHtml += `<tr><td class="hora-col">${horaStr}</td>`;
+      
+      dias.forEach(d => {
+        const dataStr = d.toISOString().split('T')[0];
+        const evento = todosEventos.find(e => e.data === dataStr && e.hora_inicio && e.hora_inicio.startsWith(horaStr.substring(0, 2)));
+        
+        if (evento) {
+          let valorTotal = (Number(evento.quantidade_pessoas) || 1) * (Number(evento.valor_por_pessoa) || 0);
+          if (Array.isArray(evento.gastos_extras)) {
+            valorTotal += evento.gastos_extras.reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
+          }
+          let classeCor = valorTotal > 0 ? 'pago' : 'gratuito';
+          if (evento.concluido) classeCor += ' concluido';
+          tbodyHtml += `<td class="evento-cell" onclick="abrirModalEvento('${dataStr}', '${horaStr}', ${evento.id})" title="${evento.nome_atracao}"><div class="evento-texto ${classeCor}">${evento.nome_atracao}</div></td>`;
+        } else {
+          tbodyHtml += `<td class="evento-cell" onclick="abrirModalEvento('${dataStr}', '${horaStr}')"></td>`;
+        }
+      });
+      tbodyHtml += '</tr>';
+    }
+    tbody.innerHTML = tbodyHtml;
+
+    const eventosOrdenados = [...todosEventos].sort((a, b) => {
+      return new Date(a.data + 'T' + a.hora_inicio) - new Date(b.data + 'T' + b.hora_inicio);
+    });
+    const eventosUnicos = [];
+    const mapIds = new Set();
+    eventosOrdenados.forEach(ev => { if(!mapIds.has(ev.id)) { mapIds.add(ev.id); eventosUnicos.push(ev); } });
+
+    const listaAtracoes = document.getElementById('listaAtracoes');
+    listaAtracoes.innerHTML = '';
+    const eventosPendentes = eventosUnicos.filter(ev => !ev.concluido);
+
+    if (eventosPendentes.length === 0) {
+      listaAtracoes.innerHTML = '<li style="color:#888;">Nenhuma atração pendente.</li>';
+    } else {
+      eventosPendentes.forEach(ev => {
+        let valorTotal = (Number(ev.quantidade_pessoas) || 1) * (Number(ev.valor_por_pessoa) || 0);
+        if (Array.isArray(ev.gastos_extras)) {
+          valorTotal += ev.gastos_extras.reduce((acc, g) => acc + (Number(g.valor) || 0), 0);
+        }
+        const isPago = valorTotal > 0;
+        const dataFormatada = new Date(ev.data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+        const horaFormatada = ev.hora_inicio.substring(0, 5);
+
+        listaAtracoes.innerHTML += `
+          <li>
+            <div style="font-size: 0.75rem; color: #666; margin-bottom: 2px;">${dataFormatada} às ${horaFormatada}</div>
+            <strong style="color: ${isPago ? '#d32f2f' : '#229954'}">${ev.nome_atracao}</strong> 
+            ${ev.endereco ? `<span style="color:#666;">(${ev.endereco})</span>` : ''}
+            ${ev.observacoes ? `<span class="obs-text">${ev.observacoes}</span>` : ''}
+          </li>
+        `;
+      });
+    }
+
+    const listaFinanceiro = document.getElementById('listaFinanceiro');
+    listaFinanceiro.innerHTML = '';
+    let totalGeral = 0;
+
+    eventosUnicos.forEach(ev => {
+      const valorBase = (Number(ev.quantidade_pessoas) || 1) * (Number(ev.valor_por_pessoa) || 0);
+      let gastosExtrasValor = 0;
+      let detalhesExtras = '';
+      
+      if (Array.isArray(ev.gastos_extras) && ev.gastos_extras.length > 0) {
+        ev.gastos_extras.forEach(g => {
+          const v = Number(g.valor) || 0;
+          gastosExtrasValor += v;
+          detalhesExtras += `<div style="color:#666;">+ ${g.descricao}: R$ ${v.toFixed(2).replace('.', ',')}</div>`;
+        });
+      }
+      
+      const valorTotal = valorBase + gastosExtrasValor;
+
+      if (valorTotal > 0) {
+        totalGeral += valorTotal;
+        listaFinanceiro.innerHTML += `
+          <div class="fin-item">
+            <div class="fin-item-left">
+              <div class="fin-item-title">${ev.nome_atracao}</div>
+              ${detalhesExtras ? `<div class="fin-item-details">${detalhesExtras}</div>` : ''}
+            </div>
+            <div class="fin-item-val">R$ ${valorTotal.toFixed(2).replace('.', ',')}</div>
+          </div>
+        `;
+      }
+    });
+
+    if (todosGastosAvulsos.length > 0) {
+      todosGastosAvulsos.forEach(g => {
+        totalGeral += Number(g.valor);
+        listaFinanceiro.innerHTML += `
+          <div class="fin-item" style="border-bottom: none; margin-top: 5px;">
+            <div class="fin-item-left">
+              <div class="fin-item-title" style="color: #666; font-style: italic;">Gasto Avulso</div>
+              <div class="fin-item-details">${g.descricao}</div>
+            </div>
+            <div class="fin-item-val">R$ ${Number(g.valor).toFixed(2).replace('.', ',')}</div>
+          </div>
+        `;
+      });
+    }
+
+    const totalBox = document.getElementById('totalGeralBox');
+    if (totalGeral > 0) {
+      totalBox.style.display = 'block';
+      document.getElementById('valorTotalGeral').textContent = `R$ ${totalGeral.toFixed(2).replace('.', ',')}`;
+    } else {
+      totalBox.style.display = 'none';
+    }
+
+    // NOVO: LÓGICA DO ORÇAMENTO NA AGENDA
+    const orcamento = feriasAtual.orcamento || 0;
+    const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+    document.getElementById('viewOrcamento').textContent = fmt(orcamento);
+    document.getElementById('viewCustoReal').textContent = fmt(totalGeral);
+
+    const barra = document.getElementById('barraOrcamento');
+    const statusTxt = document.getElementById('statusOrcamento');
+    const saldoTxt = document.getElementById('saldoOrcamento');
+
+    if (orcamento > 0) {
+      let porcentagem = (totalGeral / orcamento) * 100;
+      if (porcentagem > 100) porcentagem = 100; // Trava a barra em 100%
+
+      barra.style.width = `${porcentagem}%`;
+      barra.className = 'progress-bar ' + (porcentagem < 80 ? 'progress-ok' : (porcentagem <= 100 ? 'progress-warning' : 'progress-danger'));
+
+      const saldo = orcamento - totalGeral;
+      if (saldo < 0) {
+        statusTxt.textContent = 'Orçamento Estourado!';
+        statusTxt.style.color = '#dc2626';
+        saldoTxt.textContent = `${fmt(Math.abs(saldo))} acima do limite`;
+        saldoTxt.style.color = '#dc2626';
+        barra.className = 'progress-bar progress-danger';
+      } else {
+        statusTxt.textContent = 'Dentro do Orçamento';
+        statusTxt.style.color = '#16a34a';
+        saldoTxt.textContent = `${fmt(saldo)} restante`;
+        saldoTxt.style.color = '#16a34a';
+      }
+    } else {
+      barra.style.width = '0%';
+      statusTxt.textContent = 'Nenhum orçamento definido.';
+      statusTxt.style.color = '#666';
+      saldoTxt.textContent = '';
+    }
+  }
+
+  // MODAIS E SALVAMENTO
+  function abrirModalFerias(id = null) {
+    document.getElementById('feriasForm').reset();
+    document.getElementById('feriasEditId').value = id || '';
+    document.getElementById('modalFeriasTitle').textContent = id ? 'Editar Férias' : 'Cadastrar Férias';
+    document.getElementById('btnExcluirFeriasModal').style.display = id ? 'block' : 'none';
+
+    if (id) {
+      const f = [...todasFerias, ...todasFeriasConcluidas].find(x => String(x.id) === String(id));
+      if (f) {
+        document.getElementById('nomeFerias').value = f.nome_ferias;
+        document.getElementById('dataIda').value = f.data_ida;
+        document.getElementById('dataVolta').value = f.data_volta;
+        document.getElementById('horaInicioFerias').value = f.hora_inicio || '05:00';
+        document.getElementById('horaFimFerias').value = f.hora_fim || '23:00';
+        
+        // NOVO: Preenche o orçamento
+        if (f.orcamento) {
+          document.getElementById('orcamentoFerias').value = formatarMoedaRetorno(f.orcamento);
+        }
+      }
+    } else {
+      document.getElementById('horaInicioFerias').value = '05:00';
+      document.getElementById('horaFimFerias').value = '23:00';
+      document.getElementById('orcamentoFerias').value = '';
+    }
+    openModal('modalFerias');
+  }
+
+  function formatarMoedaRetorno(val) {
+    return Number(val).toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  }
+
+  document.getElementById('feriasForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('feriasEditId').value;
+    
+    // NOVO: Pega o orçamento
+    const orcamentoStr = document.getElementById('orcamentoFerias').value;
+    const orcamento = desformatarMoeda(orcamentoStr);
+
+    const payload = {
+      nome_ferias: document.getElementById('nomeFerias').value,
+      data_ida: document.getElementById('dataIda').value,
+      data_volta: document.getElementById('dataVolta').value,
+      hora_inicio: document.getElementById('horaInicioFerias').value,
+      hora_fim: document.getElementById('horaFimFerias').value,
+      orcamento: orcamento, // NOVO
+      user_id: window.currentUser.id
+    };
+    
+    let error;
+    if (id) {
+      const res = await db.from('ferias').update(payload).eq('id', id);
+      error = res.error;
+    } else {
+      const res = await db.from('ferias').insert([payload]);
+      error = res.error;
+    }
+    
+    if (error) return alert("Erro: " + error.message);
+    
+    closeModal('modalFerias');
+    await carregarFerias();
+  });
+
+  async function excluirFerias(id, nome) {
+    if (!confirm(`Excluir a viagem "${nome}"?\n\nIsso apagará TODAS as atrações.`)) return;
+    const { error } = await db.from('ferias').delete().eq('id', id);
+    if (error) return alert("Erro: " + error.message);
+    await carregarFerias();
+  }
+
+  function excluirFeriasDoModal() {
+    const id = document.getElementById('feriasEditId').value;
+    const nome = document.getElementById('nomeFerias').value;
+    if (id) { closeModal('modalFerias'); excluirFerias(id, nome); }
+  }
+
+  // MODAL ATRAÇÃO
+  function adicionarCampoGasto(descricao = '', valor = '') {
+    const container = document.getElementById('listaGastosAtracao');
+    const div = document.createElement('div');
+    div.className = 'gasto-item';
+    div.innerHTML = `
+      <input type="text" placeholder="Descrição" value="${descricao}" class="gasto-desc">
+      <input type="number" step="0.01" placeholder="R$" value="${valor}" class="gasto-val">
+      <button type="button" class="btn-remove-gasto" onclick="this.parentElement.remove()">✕</button>
+    `;
+    container.appendChild(div);
+  }
+
+  function abrirModalEvento(dataStr, horaStr, eventoId = null) {
+    document.getElementById('eventoTitle').textContent = eventoId ? 'Editar Atração' : 'Adicionar Atração';
+    document.getElementById('eventoForm').reset();
+    document.getElementById('listaGastosAtracao').innerHTML = '';
+    
+    document.getElementById('eventoFeriasId').value = feriasAtual.id;
+    document.getElementById('eventoData').value = dataStr;
+    document.getElementById('eventoHoraInicio').value = horaStr;
+    document.getElementById('horaInicio').value = horaStr;
+    document.getElementById('eventoId').value = eventoId || '';
+    
+    const btnExcluir = document.getElementById('btnExcluirEventoModal');
+    const btnConcluir = document.getElementById('btnConcluirEventoModal');
+
+    if (eventoId) {
+      btnExcluir.style.display = 'block';
+      btnConcluir.style.display = 'block';
+      
+      const evento = todosEventos.find(e => String(e.id) === String(eventoId));
+      if (evento) {
+        document.getElementById('nomeAtracao').value = evento.nome_atracao;
+        document.getElementById('endereco').value = evento.endereco || '';
+        document.getElementById('observacoes').value = evento.observacoes || '';
+        document.getElementById('quantidade_pessoas').value = evento.quantidade_pessoas || 1;
+        document.getElementById('valor_por_pessoa').value = evento.valor_por_pessoa || 0;
+        document.getElementById('horaInicio').value = evento.hora_inicio;
+        
+        if (Array.isArray(evento.gastos_extras) && evento.gastos_extras.length > 0) {
+          evento.gastos_extras.forEach(g => adicionarCampoGasto(g.descricao, g.valor));
+        }
+
+        if (evento.concluido) {
+          btnConcluir.textContent = 'Desmarcar Conclusão';
+          btnConcluir.style.background = '#666';
+        } else {
+          btnConcluir.textContent = 'Marcar como Concluído';
+          btnConcluir.style.background = '#f57c00';
+        }
+      }
+    } else {
+      btnExcluir.style.display = 'none';
+      btnConcluir.style.display = 'none';
+      document.getElementById('quantidade_pessoas').value = 1;
+      document.getElementById('valor_por_pessoa').value = 0;
+    }
+    openModal('modalEvento');
+  }
+
+  document.getElementById('eventoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const eventoId = document.getElementById('eventoId').value;
+    const feriasId = document.getElementById('eventoFeriasId').value;
+    
+    const qtd = Number(document.getElementById('quantidade_pessoas').value);
+    const valorUnit = Number(document.getElementById('valor_por_pessoa').value);
+
+    const gastosExtras = [];
+    document.querySelectorAll('.gasto-item').forEach(item => {
+      const desc = item.querySelector('.gasto-desc').value;
+      const val = Number(item.querySelector('.gasto-val').value);
+      if (desc && val > 0) gastosExtras.push({ descricao: desc, valor: val });
+    });
+
+    const payload = {
+      ferias_id: Number(feriasId),
+      data: document.getElementById('eventoData').value,
+      hora_inicio: document.getElementById('horaInicio').value,
+      nome_atracao: document.getElementById('nomeAtracao').value,
+      endereco: document.getElementById('endereco').value,
+      observacoes: document.getElementById('observacoes').value,
+      quantidade_pessoas: qtd,
+      valor_por_pessoa: valorUnit,
+      valor: qtd * valorUnit,
+      gastos_extras: gastosExtras
+    };
+
+    let error;
+    if (eventoId) {
+      const res = await db.from('eventos').update(payload).eq('id', eventoId);
+      error = res.error;
+    } else {
+      const res = await db.from('eventos').insert([payload]);
+      error = res.error;
+    }
+
+    if (error) return alert("Erro ao salvar: " + error.message);
+    
+    closeModal('modalEvento');
+    await carregarEventos(feriasId);
+  });
+
+  async function excluirEventoDoModal() {
+    const eventoId = document.getElementById('eventoId').value;
+    if (!eventoId || !confirm('Excluir esta atração?')) return;
+    const { error } = await db.from('eventos').delete().eq('id', eventoId);
+    if (error) return alert("Erro: " + error.message);
+    closeModal('modalEvento');
+    await carregarEventos(feriasAtual.id);
+  }
+
+  async function concluirEventoDoModal() {
+    const eventoId = document.getElementById('eventoId').value;
+    if (!eventoId) return;
+
+    const evento = todosEventos.find(e => String(e.id) === String(eventoId));
+    if (!evento) return;
+
+    const novoStatus = !evento.concluido;
+    const { error } = await db.from('eventos').update({ concluido: novoStatus }).eq('id', eventoId);
+    
+    if (error) return alert("Erro: " + error.message);
+    closeModal('modalEvento');
+    await carregarEventos(feriasAtual.id);
+  }
+
+  function abrirModalGastoAvulso() {
+    document.getElementById('gastoAvulsoForm').reset();
+    openModal('modalGastoAvulso');
+  }
+
+  document.getElementById('gastoAvulsoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = {
+      ferias_id: Number(feriasAtual.id),
+      descricao: document.getElementById('descricaoGastoAvulso').value,
+      valor: Number(document.getElementById('valorGastoAvulso').value)
+    };
+
+    const { error } = await db.from('gastos_avulsos').insert([payload]);
+    if (error) return alert("Erro: " + error.message);
+
+    closeModal('modalGastoAvulso');
+    await carregarEventos(feriasAtual.id);
+  });
+
+  function openModal(id) { document.getElementById(id).classList.add('active'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    let tentativas = 0;
+    const verificarUsuario = setInterval(() => {
+      tentativas++;
+      if (window.currentUser) {
+        clearInterval(verificarUsuario);
+        initFeriasApp();
+      }
+      if (tentativas > 25) {
+        clearInterval(verificarUsuario);
+        console.error("Timeout: O usuário não foi carregado pelo app.js");
+      }
+    }, 200);
+  });
+</script>
+</body>
+</html>
